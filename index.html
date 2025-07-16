@@ -332,6 +332,33 @@
             50% { opacity: 0.7; transform: scale(1.3); }
         }
 
+        /* Instructions */
+        .instructions {
+            background-color: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .instructions h3 {
+            color: var(--gray-900);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 6px;
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -633,6 +660,132 @@
             font-weight: 600;
         }
 
+        /* Results Table */
+        .results-container {
+            max-height: 350px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            margin-top: 20px;
+            background-color: var(--gray-50);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .results-table th {
+            background-color: var(--gray-50);
+            padding: 12px 10px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid var(--gray-200);
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .results-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+            vertical-align: middle;
+        }
+
+        .results-table tr:hover {
+            background-color: rgba(20, 184, 166, 0.03);
+        }
+
+        .topic-label {
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--gray-900);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        /* Topic Colors */
+        .topic-red { background-color: #fee2e2; }
+        .topic-yellow { background-color: #fef3c7; }
+        .topic-green { background-color: #d1fae5; }
+        .topic-blue { background-color: #dbeafe; }
+
+        .topic-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .topic-change.increase { color: var(--success); }
+        .topic-change.decrease { color: var(--error); }
+
+        /* Content Suggestions */
+        .content-suggestions {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--gray-50);
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .content-suggestions h4 {
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            margin: 8px 0;
+            background-color: var(--pure-white);
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item:hover {
+            background-color: rgba(20, 184, 166, 0.05);
+            border-color: var(--primary-teal);
+            transform: translateX(4px);
+        }
+
+        .suggestion-topic {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+
+        .suggestion-action {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            background-color: var(--gray-100);
+            padding: 4px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
         /* QC Results */
         .qc-results {
             max-height: 400px;
@@ -686,6 +839,18 @@
             font-size: 0.9rem;
             color: var(--gray-700);
             font-weight: 500;
+        }
+
+        /* Debug Info */
+        .debug-info {
+            margin-top: 16px;
+            padding: 16px;
+            background-color: var(--gray-50);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            border: 1px solid var(--gray-200);
+            display: none;
         }
 
         /* Responsive Design */
@@ -809,15 +974,19 @@
                     <div class="panel">
                         <h2>📊 Topic Analysis <span class="live-indicator"><span class="live-dot"></span>LIVE</span></h2>
                         
-                        <div class="alert alert-info">
-                            <span>💡</span>
-                            <div>
-                                <strong>Quick Start:</strong> Paste your topic data below, click "Start Analysis", then type or paste content in the editor to see real-time optimization metrics.
-                            </div>
+                        <div class="instructions">
+                            <h3>Quick Start Guide</h3>
+                            <ol>
+                                <li>Paste your topic data below (from your SEO tool)</li>
+                                <li>Click "Start Analysis" to begin tracking</li>
+                                <li>Type or paste content in the editor</li>
+                                <li>Watch metrics update in real-time with highlighting</li>
+                                <li>Use Quick Add suggestions to optimize faster</li>
+                            </ol>
                         </div>
                         
                         <div class="form-group">
-                            <label for="topic-data">Topic Data (from SEO tool)</label>
+                            <label for="topic-data">Topic Data (paste from SEO tool)</label>
                             <textarea id="topic-data" class="form-textarea" placeholder="Example format:
 stargate project texas
 0
@@ -831,11 +1000,11 @@ data center
                         </div>
 
                         <div class="btn-group">
-                            <button class="btn btn-primary" onclick="initializeAnalysis()" id="start-analysis-btn">
+                            <button class="btn btn-primary" onclick="seoOptimizer.initializeAnalysis()" id="start-analysis-btn">
                                 <span class="spinner hidden" id="analysis-spinner"></span>
                                 Start Analysis
                             </button>
-                            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+                            <button class="btn btn-secondary" onclick="seoOptimizer.clearAll()">Clear All</button>
                         </div>
 
                         <div id="seo-status"></div>
@@ -856,6 +1025,19 @@ data center
                         </div>
 
                         <div id="seo-results-container"></div>
+
+                        <div id="content-suggestions" class="content-suggestions" style="display: none;">
+                            <h4>💡 Quick Add Topics</h4>
+                            <div id="suggestions-list"></div>
+                        </div>
+
+                        <div id="debug-info" class="debug-info">
+                            <strong>Performance Metrics:</strong><br>
+                            Topics cached: <span id="topics-cached">0</span><br>
+                            Regex cache: <span id="regex-cache-size">0</span><br>
+                            Last update: <span id="last-update">-</span>ms<br>
+                            Updates: <span id="update-count">0</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -893,7 +1075,8 @@ data center
                         <div class="flex justify-between items-center mb-2">
                             <label>Content Editor</label>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-secondary" onclick="copyContent()">Copy Text</button>
+                                <button class="btn btn-sm btn-secondary" onclick="toggleDebug()">Debug</button>
+                                <button class="btn btn-sm btn-secondary" onclick="seoOptimizer.copyContent()">Copy Text</button>
                                 <button class="btn btn-sm btn-secondary">Export HTML</button>
                             </div>
                         </div>
@@ -984,7 +1167,7 @@ data center
                 
                 <div class="form-group">
                     <h3>💡 Content Suggestions</h3>
-                    <div id="content-suggestions" class="alert alert-info">
+                    <div id="content-suggestions-qc" class="alert alert-info">
                         Content improvement suggestions will appear here...
                     </div>
                 </div>
@@ -1069,7 +1252,7 @@ data center
     <script>
         // Configuration
         const config = {
-            apiBaseUrl: 'https://dark-shadow-c7cb.anandumanoj99.workers.dev', // Will be your Cloudflare Worker URL
+            apiBaseUrl: 'https://dark-shadow-c7cb.anandumanoj99.workers.dev', // Your Cloudflare Worker URL
             endpoints: {
                 claude: '/api/claude',
                 gemini: '/api/gemini',
@@ -1079,10 +1262,630 @@ data center
             }
         };
 
-        // Global variables
-        let processedTopics = [];
-        let isAnalysisActive = false;
-        let anchorTextData = [];
+        // Enhanced memory management and deduplication system for SEO Optimizer
+        class SEOOptimizer {
+            constructor() {
+                // Memory pools for efficient allocation
+                this.topicPool = new Map();
+                this.regexCache = new Map();
+                this.highlightCache = new Map();
+                this.documentFragmentPool = [];
+                
+                // State management
+                this.processedTopics = [];
+                this.isAnalysisActive = false;
+                this.debounceTimer = null;
+                this.rafId = null;
+                
+                // Performance tracking
+                this.updateCount = 0;
+                this.lastUpdateTime = 0;
+                
+                // Color definitions
+                this.COLORS = {
+                    RED: "#fee2e2",
+                    YELLOW: "#fef3c7", 
+                    GREEN: "#d1fae5",
+                    BLUE: "#dbeafe"
+                };
+                
+                this.initializeEventListeners();
+            }
+            
+            initializeEventListeners() {
+                const contentEditor = document.getElementById('content-editor');
+                
+                // Optimized input handler with debouncing
+                contentEditor.addEventListener('input', (e) => {
+                    if (this.isAnalysisActive) {
+                        this.scheduleUpdate();
+                    }
+                    this.updateWordCount();
+                });
+                
+                // Prevent formatting on paste and clean input
+                contentEditor.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    this.insertCleanText(text);
+                });
+                
+                // Clean up on focus loss
+                contentEditor.addEventListener('blur', () => {
+                    this.cleanup();
+                });
+            }
+            
+            // Memory-efficient topic data parsing with deduplication
+            parseTopicData(data) {
+                const lines = data.trim().split('\n');
+                const topics = [];
+                const seenTopics = new Set(); // Prevent duplicates
+                
+                this.clearMemoryPools();
+                
+                for (let i = 0; i < lines.length; i += 3) {
+                    if (i + 2 < lines.length) {
+                        const topic = lines[i].trim().toLowerCase(); // Normalize for deduplication
+                        const currentMentions = parseInt(lines[i + 1].trim()) || 0;
+                        const suggestedMentions = parseInt(lines[i + 2].trim()) || 0;
+                        
+                        // Skip if we've seen this topic before
+                        if (seenTopics.has(topic)) {
+                            console.warn(`Duplicate topic detected and skipped: "${topic}"`);
+                            continue;
+                        }
+                        
+                        seenTopics.add(topic);
+                        
+                        const topicObj = {
+                            topic: topic,
+                            originalTopic: lines[i].trim(), // Keep original case
+                            suggestedMentions: suggestedMentions,
+                            actualMentions: 0,
+                            previousMentions: 0,
+                            color: this.COLORS.RED,
+                            regex: null // Will be created on demand
+                        };
+                        
+                        // Add to memory pool
+                        this.topicPool.set(topic, topicObj);
+                        topics.push(topicObj);
+                    }
+                }
+                
+                console.log(`Parsed ${topics.length} unique topics, filtered ${lines.length / 3 - topics.length} duplicates`);
+                return topics;
+            }
+            
+            // Efficient regex creation with caching
+            getTopicRegex(topic) {
+                if (this.regexCache.has(topic)) {
+                    return this.regexCache.get(topic);
+                }
+                
+                const escapedTopic = topic.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\        .relative');
+                const regex = new RegExp(`\\b${escapedTopic}\\b`, 'gi');
+                
+                // Limit cache size to prevent memory leaks
+                if (this.regexCache.size > 100) {
+                    const firstKey = this.regexCache.keys().next().value;
+                    this.regexCache.delete(firstKey);
+                }
+                
+                this.regexCache.set(topic, regex);
+                return regex;
+            }
+            
+            // Memory-optimized counting with caching
+            countTopicOccurrences(content, topic) {
+                const cacheKey = `${topic}:${content.length}:${this.getContentHash(content)}`;
+                
+                if (this.highlightCache.has(cacheKey)) {
+                    return this.highlightCache.get(cacheKey);
+                }
+                
+                const regex = this.getTopicRegex(topic);
+                const matches = content.match(regex);
+                const count = matches ? matches.length : 0;
+                
+                // Cache the result with size limit
+                if (this.highlightCache.size > 50) {
+                    const firstKey = this.highlightCache.keys().next().value;
+                    this.highlightCache.delete(firstKey);
+                }
+                
+                this.highlightCache.set(cacheKey, count);
+                return count;
+            }
+            
+            // Simple hash function for content change detection
+            getContentHash(content) {
+                let hash = 0;
+                for (let i = 0; i < content.length; i++) {
+                    const char = content.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return hash;
+            }
+            
+            // Optimized content highlighting with fragment reuse
+            highlightContentOptimized(plainText, topics) {
+                const contentEditor = document.getElementById('content-editor');
+                
+                // Save cursor position
+                const selection = window.getSelection();
+                const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+                const cursorOffset = range ? this.getAbsoluteCursorPosition(contentEditor, range) : 0;
+                
+                // Create highlight map to avoid overlapping highlights
+                const highlightMap = this.createHighlightMap(plainText, topics);
+                
+                // Build optimized HTML with non-overlapping highlights
+                let highlightedHTML = this.buildHighlightedHTML(plainText, highlightMap);
+                
+                // Update DOM efficiently
+                contentEditor.innerHTML = highlightedHTML || '<br>';
+                
+                // Restore cursor position
+                if (cursorOffset > 0) {
+                    this.restoreCursorPosition(contentEditor, cursorOffset);
+                }
+            }
+            
+            // Create a map of text positions to avoid overlapping highlights
+            createHighlightMap(text, topics) {
+                const highlights = [];
+                const processedRanges = [];
+                
+                // Sort topics by length (longest first) to prioritize longer matches
+                const sortedTopics = [...topics]
+                    .filter(topic => topic.actualMentions > 0)
+                    .sort((a, b) => b.originalTopic.length - a.originalTopic.length);
+                
+                sortedTopics.forEach(topic => {
+                    const regex = this.getTopicRegex(topic.originalTopic);
+                    let match;
+                    
+                    // Reset regex for global search
+                    regex.lastIndex = 0;
+                    
+                    while ((match = regex.exec(text)) !== null) {
+                        const start = match.index;
+                        const end = start + match[0].length;
+                        
+                        // Check if this range overlaps with existing highlights
+                        const overlaps = processedRanges.some(range => 
+                            (start < range.end && end > range.start)
+                        );
+                        
+                        if (!overlaps) {
+                            highlights.push({
+                                start: start,
+                                end: end,
+                                text: match[0],
+                                topic: topic.originalTopic,
+                                color: topic.color
+                            });
+                            processedRanges.push({ start, end });
+                        }
+                        
+                        // Prevent infinite loops with global regex
+                        if (regex.lastIndex === start) {
+                            regex.lastIndex++;
+                        }
+                    }
+                });
+                
+                // Sort highlights by start position
+                return highlights.sort((a, b) => a.start - b.start);
+            }
+            
+            // Build HTML with highlights applied
+            buildHighlightedHTML(text, highlights) {
+                if (highlights.length === 0) {
+                    return this.escapeHtml(text).replace(/\n/g, '<br>');
+                }
+                
+                let html = '';
+                let lastIndex = 0;
+                
+                highlights.forEach(highlight => {
+                    // Add text before highlight
+                    if (highlight.start > lastIndex) {
+                        const beforeText = text.substring(lastIndex, highlight.start);
+                        html += this.escapeHtml(beforeText);
+                    }
+                    
+                    // Add highlighted text
+                    const highlightedText = this.escapeHtml(highlight.text);
+                    html += `<span class="highlighted-text" style="background-color: ${highlight.color};" data-topic="${this.escapeHtml(highlight.topic)}">${highlightedText}</span>`;
+                    
+                    lastIndex = highlight.end;
+                });
+                
+                // Add remaining text
+                if (lastIndex < text.length) {
+                    const remainingText = text.substring(lastIndex);
+                    html += this.escapeHtml(remainingText);
+                }
+                
+                return html.replace(/\n/g, '<br>');
+            }
+            
+            // Efficient cursor position management
+            getAbsoluteCursorPosition(element, range) {
+                const preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(element);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                return preCaretRange.toString().length;
+            }
+            
+            restoreCursorPosition(element, targetOffset) {
+                if (document.activeElement !== element) return;
+                
+                try {
+                    const textNodes = this.getTextNodes(element);
+                    let currentOffset = 0;
+                    
+                    for (let node of textNodes) {
+                        if (currentOffset + node.length >= targetOffset) {
+                            const range = document.createRange();
+                            const offset = Math.min(targetOffset - currentOffset, node.length);
+                            range.setStart(node, offset);
+                            range.collapse(true);
+                            
+                            const selection = window.getSelection();
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            break;
+                        }
+                        currentOffset += node.length;
+                    }
+                } catch (e) {
+                    console.warn('Cursor restoration failed:', e);
+                }
+            }
+            
+            getTextNodes(element) {
+                const textNodes = [];
+                const walker = document.createTreeWalker(
+                    element,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+                return textNodes;
+            }
+            
+            // Utility functions
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            insertCleanText(text) {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(document.createTextNode(text));
+                    range.collapse(false);
+                }
+            }
+            
+            // Performance-optimized update scheduling
+            scheduleUpdate() {
+                // Cancel previous updates
+                clearTimeout(this.debounceTimer);
+                if (this.rafId) {
+                    cancelAnimationFrame(this.rafId);
+                }
+                
+                // Debounce rapid changes
+                this.debounceTimer = setTimeout(() => {
+                    this.rafId = requestAnimationFrame(() => {
+                        this.updateAnalysisLive();
+                        this.rafId = null;
+                    });
+                }, 150); // Reduced debounce for better responsiveness
+            }
+            
+            // Main analysis update with memory optimization
+            updateAnalysisLive() {
+                if (!this.isAnalysisActive || this.processedTopics.length === 0) return;
+                
+                const startTime = performance.now();
+                const content = this.getPlainTextContent();
+                
+                // Update topic counts efficiently
+                this.processedTopics.forEach(topic => {
+                    topic.previousMentions = topic.actualMentions;
+                    topic.actualMentions = this.countTopicOccurrences(content, topic.originalTopic);
+                    topic.color = this.getColorForMentions(topic.actualMentions);
+                });
+                
+                // Sort by optimization gap
+                this.processedTopics.sort((a, b) => {
+                    const gapA = Math.max(0, a.suggestedMentions - a.actualMentions);
+                    const gapB = Math.max(0, b.suggestedMentions - b.actualMentions);
+                    return gapB - gapA;
+                });
+                
+                // Update displays
+                this.displayResults(this.processedTopics);
+                this.highlightContentOptimized(content, this.processedTopics);
+                this.updateStats(this.processedTopics);
+                this.updateOptimizationTips(this.processedTopics);
+                this.updateSuggestions();
+                
+                // Update performance metrics
+                this.updateCount++;
+                this.lastUpdateTime = performance.now() - startTime;
+                this.updateDebugInfo();
+            }
+            
+            // Memory cleanup
+            cleanup() {
+                // Clear caches periodically
+                if (this.updateCount % 50 === 0) {
+                    this.highlightCache.clear();
+                    if (this.regexCache.size > 50) {
+                        // Keep only recent entries
+                        const entries = Array.from(this.regexCache.entries()).slice(-25);
+                        this.regexCache.clear();
+                        entries.forEach(([key, value]) => this.regexCache.set(key, value));
+                    }
+                }
+            }
+            
+            clearMemoryPools() {
+                this.topicPool.clear();
+                this.regexCache.clear();
+                this.highlightCache.clear();
+                this.documentFragmentPool = [];
+            }
+            
+            // Color determination
+            getColorForMentions(mentions) {
+                if (mentions === 0) return this.COLORS.RED;
+                else if (mentions >= 1 && mentions <= 2) return this.COLORS.YELLOW;
+                else if (mentions >= 3 && mentions <= 10) return this.COLORS.GREEN;
+                else return this.COLORS.BLUE;
+            }
+            
+            getColorClass(mentions) {
+                if (mentions === 0) return 'topic-red';
+                else if (mentions >= 1 && mentions <= 2) return 'topic-yellow';
+                else if (mentions >= 3 && mentions <= 10) return 'topic-green';
+                else return 'topic-blue';
+            }
+            
+            // Content utilities
+            getPlainTextContent() {
+                const contentEditor = document.getElementById('content-editor');
+                return contentEditor.innerText || contentEditor.textContent || '';
+            }
+            
+            updateWordCount() {
+                const text = this.getPlainTextContent();
+                const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+                const chars = text.length;
+                
+                document.getElementById('word-count').textContent = words || 0;
+                document.getElementById('char-count').textContent = chars || 0;
+            }
+            
+            // Debug information
+            updateDebugInfo() {
+                document.getElementById('topics-cached').textContent = this.topicPool.size;
+                document.getElementById('regex-cache-size').textContent = this.regexCache.size;
+                document.getElementById('last-update').textContent = this.lastUpdateTime.toFixed(2);
+                document.getElementById('update-count').textContent = this.updateCount;
+            }
+            
+            // UI Methods
+            displayResults(topics) {
+                let html = `
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--gray-700);">📊 Topic Analysis Results</h3>
+                    <div class="results-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">Topic</th>
+                                    <th style="text-align: center; width: 15%;">Count</th>
+                                    <th style="text-align: center; width: 15%;">Target</th>
+                                    <th style="text-align: center; width: 20%;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                topics.forEach(topic => {
+                    const gap = Math.max(0, topic.suggestedMentions - topic.actualMentions);
+                    const gapDisplay = gap > 0 ? `-${gap}` : '✓';
+                    const gapColor = gap > 0 ? 'var(--error)' : 'var(--success)';
+                    const colorClass = this.getColorClass(topic.actualMentions);
+                    
+                    let changeIndicator = '';
+                    const change = topic.actualMentions - topic.previousMentions;
+                    if (change > 0) {
+                        changeIndicator = `<span class="topic-change increase">+${change}</span>`;
+                    } else if (change < 0) {
+                        changeIndicator = `<span class="topic-change decrease">${change}</span>`;
+                    }
+                    
+                    html += `
+                        <tr>
+                            <td title="${topic.originalTopic}">
+                                <span class="topic-label ${colorClass}">
+                                    ${topic.originalTopic}
+                                </span>
+                            </td>
+                            <td style="text-align: center; font-weight: 600; font-size: 0.9rem;">
+                                ${topic.actualMentions}${changeIndicator}
+                            </td>
+                            <td style="text-align: center; font-size: 0.9rem;">
+                                ${topic.suggestedMentions}
+                            </td>
+                            <td style="text-align: center; color: ${gapColor}; font-weight: 600; font-size: 0.9rem;">
+                                ${gapDisplay}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                document.getElementById('seo-results-container').innerHTML = html;
+            }
+            
+            updateStats(topics) {
+                const totalTopics = topics.length;
+                const optimizedTopics = topics.filter(t => t.actualMentions >= t.suggestedMentions).length;
+                const needsWorkTopics = totalTopics - optimizedTopics;
+                
+                document.getElementById('total-topics').textContent = totalTopics;
+                document.getElementById('optimized-topics').textContent = optimizedTopics;
+                document.getElementById('needs-work-topics').textContent = needsWorkTopics;
+                document.getElementById('seo-stats-grid').style.display = 'grid';
+                
+                // Update SEO Score
+                const score = totalTopics > 0 ? Math.round((optimizedTopics / totalTopics) * 100) : 0;
+                document.getElementById('seo-score').textContent = score;
+            }
+            
+            updateOptimizationTips(topics) {
+                const underOptimized = topics.filter(t => t.actualMentions < t.suggestedMentions);
+                const tipDiv = document.getElementById('optimization-tip');
+                const tipText = document.getElementById('tip-text');
+                
+                if (underOptimized.length > 0) {
+                    const topNeed = underOptimized[0];
+                    const needed = topNeed.suggestedMentions - topNeed.actualMentions;
+                    tipText.textContent = `Add ${needed} more mention${needed > 1 ? 's' : ''} of "${topNeed.originalTopic}" to reach the target.`;
+                    tipDiv.classList.remove('hidden');
+                    tipDiv.classList.remove('alert-success');
+                    tipDiv.classList.add('alert-warning');
+                } else {
+                    tipText.textContent = 'Perfect! All topics are optimally mentioned.';
+                    tipDiv.classList.remove('hidden');
+                    tipDiv.classList.remove('alert-warning');
+                    tipDiv.classList.add('alert-success');
+                }
+            }
+            
+            updateSuggestions() {
+                const underOptimized = this.processedTopics
+                    .filter(t => t.actualMentions < t.suggestedMentions)
+                    .slice(0, 3);
+                
+                const suggestionsList = document.getElementById('suggestions-list');
+                const suggestionsContainer = document.getElementById('content-suggestions');
+                
+                if (underOptimized.length === 0) {
+                    suggestionsList.innerHTML = '<div style="color: var(--success); padding: 16px; text-align: center; font-weight: 600;">✓ All topics are well-optimized!</div>';
+                } else {
+                    let html = '';
+                    underOptimized.forEach(topic => {
+                        const needed = topic.suggestedMentions - topic.actualMentions;
+                        html += `
+                            <div class="suggestion-item" onclick="seoOptimizer.addTopicAtCursor('${topic.originalTopic}')">
+                                <span class="suggestion-topic">${topic.originalTopic}</span>
+                                <span class="suggestion-action">+${needed} needed</span>
+                            </div>
+                        `;
+                    });
+                    suggestionsList.innerHTML = html;
+                }
+                
+                suggestionsContainer.style.display = 'block';
+            }
+            
+            addTopicAtCursor(topic) {
+                const contentEditor = document.getElementById('content-editor');
+                contentEditor.focus();
+                this.insertCleanText(` ${topic} `);
+                this.scheduleUpdate();
+            }
+            
+            // Public interface methods
+            initializeAnalysis() {
+                const topicData = document.getElementById('topic-data').value;
+                const spinner = document.getElementById('analysis-spinner');
+                const btn = document.getElementById('start-analysis-btn');
+                
+                if (!topicData.trim()) {
+                    showStatus('seo-status', "Please enter topic data first", "error");
+                    return;
+                }
+                
+                // Show loading state
+                spinner.classList.remove('hidden');
+                btn.disabled = true;
+                showStatus('seo-status', "Initializing memory-optimized analysis...", "info");
+                
+                try {
+                    // Parse topics with deduplication
+                    this.processedTopics = this.parseTopicData(topicData);
+                    this.isAnalysisActive = true;
+                    
+                    // Run initial analysis
+                    this.updateAnalysisLive();
+                    
+                    // Show suggestions
+                    this.updateSuggestions();
+                    
+                    showStatus('seo-status', `Analysis active! Tracking ${this.processedTopics.length} unique topics.`, "success");
+                } catch (error) {
+                    showStatus('seo-status', `Error: ${error.message}`, "error");
+                } finally {
+                    spinner.classList.add('hidden');
+                    btn.disabled = false;
+                }
+            }
+            
+            clearAll() {
+                if (confirm('Are you sure you want to clear all content and analysis?')) {
+                    document.getElementById('topic-data').value = '';
+                    document.getElementById('content-editor').innerHTML = '';
+                    document.getElementById('seo-results-container').innerHTML = '';
+                    document.getElementById('seo-status').innerHTML = '';
+                    document.getElementById('seo-stats-grid').style.display = 'none';
+                    document.getElementById('content-suggestions').style.display = 'none';
+                    document.getElementById('optimization-tip').classList.add('hidden');
+                    
+                    this.processedTopics = [];
+                    this.isAnalysisActive = false;
+                    this.updateCount = 0;
+                    this.clearMemoryPools();
+                    this.updateWordCount();
+                }
+            }
+            
+            copyContent() {
+                const text = this.getPlainTextContent();
+                navigator.clipboard.writeText(text).then(() => {
+                    showStatus('seo-status', "Content copied to clipboard!", "success");
+                }).catch(err => {
+                    showStatus('seo-status', "Failed to copy content", "error");
+                });
+            }
+        }
+        
+        // Initialize the optimized SEO optimizer
+        const seoOptimizer = new SEOOptimizer();
 
         // Tab switching functionality
         function switchTab(tabName) {
@@ -1098,231 +1901,6 @@ data center
             if (selectedTab && clickedNavTab) {
                 selectedTab.classList.add('active');
                 clickedNavTab.classList.add('active');
-            }
-        }
-
-        // SEO Optimizer Functions
-        function initializeAnalysis() {
-            const topicData = document.getElementById('topic-data').value;
-            const statusEl = document.getElementById('seo-status');
-            const spinner = document.getElementById('analysis-spinner');
-            const btn = document.getElementById('start-analysis-btn');
-            
-            if (!topicData.trim()) {
-                showStatus('seo-status', 'Please enter topic data first', 'error');
-                return;
-            }
-            
-            // Show loading state
-            spinner.classList.remove('hidden');
-            btn.disabled = true;
-            showStatus('seo-status', 'Initializing SEO analysis...', 'info');
-            
-            try {
-                // Parse topic data
-                processedTopics = parseTopicData(topicData);
-                isAnalysisActive = true;
-                
-                // Update UI
-                updateStats();
-                document.getElementById('seo-stats-grid').style.display = 'grid';
-                showStatus('seo-status', `Analysis active! Tracking ${processedTopics.length} unique topics.`, 'success');
-                
-                // Initialize content editor listener
-                initializeContentEditor();
-                
-            } catch (error) {
-                showStatus('seo-status', `Error: ${error.message}`, 'error');
-            } finally {
-                spinner.classList.add('hidden');
-                btn.disabled = false;
-            }
-        }
-
-        function parseTopicData(data) {
-            const lines = data.trim().split('\n');
-            const topics = [];
-            
-            for (let i = 0; i < lines.length; i += 3) {
-                if (i + 2 < lines.length) {
-                    const topic = lines[i].trim();
-                    const currentMentions = parseInt(lines[i + 1].trim()) || 0;
-                    const suggestedMentions = parseInt(lines[i + 2].trim()) || 0;
-                    
-                    topics.push({
-                        topic: topic,
-                        currentMentions: currentMentions,
-                        suggestedMentions: suggestedMentions,
-                        actualMentions: 0,
-                        color: getColorForMentions(0)
-                    });
-                }
-            }
-            
-            return topics;
-        }
-
-        function initializeContentEditor() {
-            const contentEditor = document.getElementById('content-editor');
-            contentEditor.addEventListener('input', updateContentAnalysis);
-            contentEditor.addEventListener('paste', handlePaste);
-        }
-
-        function updateContentAnalysis() {
-            if (!isAnalysisActive) return;
-            
-            const content = getPlainTextContent();
-            
-            // Update word count
-            updateWordCount(content);
-            
-            // Update topic analysis
-            processedTopics.forEach(topic => {
-                topic.actualMentions = countTopicOccurrences(content, topic.topic);
-                topic.color = getColorForMentions(topic.actualMentions);
-            });
-            
-            // Update displays
-            updateStats();
-            updateSEOScore();
-            highlightContent(content);
-        }
-
-        function getPlainTextContent() {
-            const contentEditor = document.getElementById('content-editor');
-            return contentEditor.innerText || contentEditor.textContent || '';
-        }
-
-        function updateWordCount(content) {
-            const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
-            const chars = content.length;
-            
-            document.getElementById('word-count').textContent = words || 0;
-            document.getElementById('char-count').textContent = chars || 0;
-        }
-
-        function countTopicOccurrences(content, topic) {
-            const regex = new RegExp(`\\b${topic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-            const matches = content.match(regex);
-            return matches ? matches.length : 0;
-        }
-
-        function getColorForMentions(mentions) {
-            if (mentions === 0) return '#fee2e2';
-            else if (mentions >= 1 && mentions <= 2) return '#fef3c7';
-            else if (mentions >= 3 && mentions <= 10) return '#d1fae5';
-            else return '#dbeafe';
-        }
-
-        function updateStats() {
-            const totalTopics = processedTopics.length;
-            const optimizedTopics = processedTopics.filter(t => t.actualMentions >= t.suggestedMentions).length;
-            const needsWorkTopics = totalTopics - optimizedTopics;
-            
-            document.getElementById('total-topics').textContent = totalTopics;
-            document.getElementById('optimized-topics').textContent = optimizedTopics;
-            document.getElementById('needs-work-topics').textContent = needsWorkTopics;
-        }
-
-        function updateSEOScore() {
-            if (processedTopics.length === 0) {
-                document.getElementById('seo-score').textContent = '--';
-                return;
-            }
-            
-            const optimizedTopics = processedTopics.filter(t => t.actualMentions >= t.suggestedMentions).length;
-            const score = Math.round((optimizedTopics / processedTopics.length) * 100);
-            document.getElementById('seo-score').textContent = score;
-        }
-
-        function highlightContent(content) {
-            const contentEditor = document.getElementById('content-editor');
-            
-            // Save cursor position
-            const selection = window.getSelection();
-            const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-            const cursorOffset = range ? getCursorOffset(contentEditor, range) : 0;
-            
-            // Apply highlights
-            let highlightedHTML = content;
-            
-            // Sort topics by length (longest first) to avoid partial matches
-            const sortedTopics = [...processedTopics].sort((a, b) => b.topic.length - a.topic.length);
-            
-            sortedTopics.forEach(topic => {
-                const regex = new RegExp(`\\b${topic.topic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-                highlightedHTML = highlightedHTML.replace(regex, (match) => {
-                    return `<span class="highlighted-text" style="background-color: ${topic.color};" data-topic="${topic.topic}">${match}</span>`;
-                });
-            });
-            
-            contentEditor.innerHTML = highlightedHTML || '<br>';
-            
-            // Restore cursor position
-            if (cursorOffset > 0) {
-                restoreCursorPosition(contentEditor, cursorOffset);
-            }
-        }
-
-        function getCursorOffset(element, range) {
-            const preCaretRange = range.cloneRange();
-            preCaretRange.selectNodeContents(element);
-            preCaretRange.setEnd(range.endContainer, range.endOffset);
-            return preCaretRange.toString().length;
-        }
-
-        function restoreCursorPosition(element, targetOffset) {
-            const walker = document.createTreeWalker(
-                element,
-                NodeFilter.SHOW_TEXT,
-                null,
-                false
-            );
-            
-            let currentOffset = 0;
-            let node;
-            
-            while (node = walker.nextNode()) {
-                if (currentOffset + node.length >= targetOffset) {
-                    const range = document.createRange();
-                    const offset = Math.min(targetOffset - currentOffset, node.length);
-                    range.setStart(node, offset);
-                    range.collapse(true);
-                    
-                    const selection = window.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                    break;
-                }
-                currentOffset += node.length;
-            }
-        }
-
-        function handlePaste(e) {
-            e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text');
-            document.execCommand('insertText', false, text);
-        }
-
-        function copyContent() {
-            const text = getPlainTextContent();
-            navigator.clipboard.writeText(text).then(() => {
-                showStatus('seo-status', 'Content copied to clipboard!', 'success');
-            }).catch(err => {
-                showStatus('seo-status', 'Failed to copy content', 'error');
-            });
-        }
-
-        function clearAll() {
-            if (confirm('Are you sure you want to clear all content and analysis?')) {
-                document.getElementById('topic-data').value = '';
-                document.getElementById('content-editor').innerHTML = '';
-                document.getElementById('seo-status').innerHTML = '';
-                document.getElementById('seo-stats-grid').style.display = 'none';
-                
-                processedTopics = [];
-                isAnalysisActive = false;
-                updateWordCount('');
             }
         }
 
@@ -1412,7 +1990,7 @@ data center
             }
             
             // Update content suggestions
-            document.getElementById('content-suggestions').innerHTML = `
+            document.getElementById('content-suggestions-qc').innerHTML = `
                 <strong>Content Improvements:</strong><br>
                 ${analysis.other_suggestions}
             `;
@@ -1477,7 +2055,7 @@ data center
                 }
                 
                 const data = await response.json();
-                anchorTextData = parseAnchorData(data.values || []);
+                const anchorTextData = parseAnchorData(data.values || []);
                 
                 showStatus('linking-status', `Successfully loaded ${anchorTextData.length} anchor text entries!`, 'success');
                 
@@ -1605,7 +2183,6 @@ data center
             document.getElementById('sheets-id').value = '';
             document.getElementById('linking-status').innerHTML = '';
             document.getElementById('linking-results-panel').style.display = 'none';
-            anchorTextData = [];
         }
 
         // Utility Functions
@@ -1620,21 +2197,16 @@ data center
             }
         }
 
+        function toggleDebug() {
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize word count
-            updateWordCount('');
-            
-            // Initialize content editor
-            const contentEditor = document.getElementById('content-editor');
-            contentEditor.addEventListener('input', () => {
-                if (isAnalysisActive) {
-                    updateContentAnalysis();
-                } else {
-                    updateWordCount(getPlainTextContent());
-                }
-            });
+            seoOptimizer.updateWordCount();
         });
     </script>
 </body>
-</html> 
+</html>
