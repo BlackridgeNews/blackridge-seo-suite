@@ -1180,12 +1180,6 @@ data center
                 <h2>🔗 Internal Linking Configuration</h2>
                 
                 <div class="form-group">
-                    <label for="sheets-id">Google Sheets ID</label>
-                    <input type="text" id="sheets-id" class="form-input" placeholder="Enter your Google Sheets ID">
-                    <small style="color: var(--gray-500); font-size: 0.8rem;">The ID from your Google Sheets URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</small>
-                </div>
-                
-                <div class="form-group">
                     <label for="sheets-range">Sheet Range</label>
                     <input type="text" id="sheets-range" class="form-input" placeholder="Sheet1!C:G" value="Sheet1!C:G">
                     <small style="color: var(--gray-500); font-size: 0.8rem;">Range containing: URL (Column C), Anchor Text 1-4 (Columns D-G)</small>
@@ -2037,18 +2031,12 @@ data center
 
         // Internal Linking Functions
         async function loadAnchorData() {
-            const sheetId = document.getElementById('sheets-id').value;
             const range = document.getElementById('sheets-range').value;
-            
-            if (!sheetId.trim()) {
-                showStatus('linking-status', 'Please enter a Google Sheets ID', 'error');
-                return;
-            }
             
             showStatus('linking-status', 'Loading anchor data from Google Sheets...', 'info');
             
             try {
-                const response = await fetch(`${config.apiBaseUrl}${config.endpoints.sheets}?sheetId=${sheetId}&range=${range}`);
+                const response = await fetch(`${config.apiBaseUrl}${config.endpoints.sheets}?range=${range}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -2090,13 +2078,12 @@ data center
 
         async function generateInternalLinks() {
             const content = document.getElementById('linking-content').value;
-            const sheetId = document.getElementById('sheets-id').value;
             const range = document.getElementById('sheets-range').value;
             const spinner = document.getElementById('linking-spinner');
             const btn = document.getElementById('generate-links-btn');
             
-            if (!content.trim() || !sheetId.trim()) {
-                showStatus('linking-status', 'Please fill in content and Google Sheets ID', 'error');
+            if (!content.trim()) {
+                showStatus('linking-status', 'Please fill in content', 'error');
                 return;
             }
             
@@ -2113,7 +2100,6 @@ data center
                     },
                     body: JSON.stringify({
                         content: content,
-                        sheetId: sheetId,
                         range: range
                     })
                 });
@@ -2180,7 +2166,6 @@ data center
 
         function clearLinkingData() {
             document.getElementById('linking-content').value = '';
-            document.getElementById('sheets-id').value = '';
             document.getElementById('linking-status').innerHTML = '';
             document.getElementById('linking-results-panel').style.display = 'none';
         }
