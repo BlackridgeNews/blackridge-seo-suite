@@ -631,6 +631,10 @@
             color: var(--gray-400);
             font-style: italic;
         }
+        
+        .editable-content[contenteditable="true"]:not(:empty):before {
+            display: none;
+        }
 
         .highlighted-text {
             padding: 3px 6px;
@@ -964,6 +968,10 @@
                 <span class="icon">🔗</span>
                 <span>Internal Linking</span>
             </button>
+            <button class="nav-tab" onclick="switchTab('news-extraction')" data-tab="news-extraction">
+                <span class="icon">📰</span>
+                <span>News Extraction</span>
+            </button>
         </div>
 
         <!-- Tab 1: SEO Optimizer -->
@@ -1099,7 +1107,9 @@ data center
                 
                 <div class="form-group">
                     <label for="qc-content">Content for Analysis</label>
-                    <textarea id="qc-content" class="form-textarea" placeholder="Paste your content here for comprehensive AI quality analysis..."></textarea>
+                    <div id="qc-content-editor" class="editable-content" contenteditable="true" spellcheck="true" style="min-height: 200px; max-height: 400px;">
+                        Paste your content here for comprehensive AI quality analysis...
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -1187,7 +1197,9 @@ data center
                 
                 <div class="form-group">
                     <label for="linking-content">Content for Internal Linking</label>
-                    <textarea id="linking-content" class="form-textarea" placeholder="Paste the content where you want to add strategic internal links..."></textarea>
+                    <div id="linking-content-editor" class="editable-content" contenteditable="true" spellcheck="true" style="min-height: 200px; max-height: 400px;">
+                        Paste the content where you want to add strategic internal links...
+                    </div>
                 </div>
                 
                 <div class="btn-group">
@@ -1201,42 +1213,120 @@ data center
                 
                 <div id="linking-status"></div>
             </div>
-            
-            <!-- Linking Results -->
-            <div class="panel" id="linking-results-panel" style="display: none;">
-                <h2>✨ Linked Content Results</h2>
-                
-                <div class="stats-grid mb-4">
-                    <div class="stat-card">
-                        <h4>Links Added</h4>
-                        <div class="value" id="links-added">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>Anchor Texts</h4>
-                        <div class="value" id="total-anchors">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>Success Rate</h4>
-                        <div class="value" id="success-rate">0%</div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="flex justify-between items-center mb-2">
-                        <label>Linked Content</label>
-                        <button class="btn btn-sm btn-secondary" onclick="copyLinkedContent()">Copy Result</button>
-                    </div>
-                    <div id="linked-content-result" class="editable-content" style="max-height: 400px; overflow-y: auto;">
-                        Linked content will appear here...
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <h3>📊 Matched Anchors</h3>
-                    <div id="matched-anchors" class="qc-results">
-                        <div class="text-center" style="padding: 40px; color: var(--gray-500);">
-                            Matched anchor texts will appear here...
+        </div>
+
+        <!-- Tab 4: News Extraction -->
+        <div id="news-extraction" class="tab-content">
+            <div class="seo-layout">
+                <!-- News Sources Sidebar -->
+                <div class="seo-sidebar">
+                    <div class="panel">
+                        <h2>📰 News Sources <span class="live-indicator"><span class="live-dot"></span>LIVE</span></h2>
+                        
+                        <div class="instructions">
+                            <h3>Multi-Source News Extraction</h3>
+                            <ol>
+                                <li>Add multiple news URLs for comprehensive coverage</li>
+                                <li>Set article title for the group</li>
+                                <li>Click "Extract & Generate" to process</li>
+                                <li>Review generated article with AI analysis</li>
+                                <li>Export in multiple formats</li>
+                            </ol>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="article-title">Article Title</label>
+                            <input type="text" id="article-title" class="form-input" placeholder="Enter article title...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="news-url">Add News URL</label>
+                            <div class="flex gap-4">
+                                <input type="url" id="news-url" class="form-input" placeholder="https://example.com/news-article" onkeypress="if(event.key==='Enter') addNewsUrl()">
+                                <button class="btn btn-primary btn-sm" onclick="addNewsUrl()">Add URL</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Source URLs (<span id="url-count">0</span>)</label>
+                            <div id="url-list" class="results-container" style="max-height: 200px;">
+                                <div class="text-center" style="padding: 20px; color: var(--gray-500);">
+                                    No URLs added yet
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="extractAndGenerateNews()" id="extract-news-btn">
+                                <span class="spinner hidden" id="news-spinner"></span>
+                                Extract & Generate
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearNewsData()">Clear All</button>
+                        </div>
+
+                        <div id="news-status"></div>
+
+                        <div class="stats-grid mt-4" id="news-stats-grid" style="display: none;">
+                            <div class="stat-card">
+                                <h4>Sources</h4>
+                                <div class="value" id="source-count">0</div>
+                            </div>
+                            <div class="form-group">
+                                <h4>Processing</h4>
+                                <div class="value" id="processing-status">Ready</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Article Length</h4>
+                                <div class="value" id="article-length">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- News Content Editor -->
+                <div class="panel">
+                    <h2>✏️ Generated Article</h2>
+                    
+                    <div class="stats-grid mb-4">
+                        <div class="stat-card">
+                            <h4>Word Count</h4>
+                            <div class="value" id="news-word-count">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Sources Used</h4>
+                            <div class="value" id="sources-used">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Generation Time</h4>
+                            <div class="value" id="generation-time">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <span>🎨</span>
+                        <div>
+                            <strong>AI-Generated Content:</strong>
+                            This article is generated from multiple news sources using Claude AI. Review and edit as needed before publishing.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="flex justify-between items-center mb-2">
+                            <label>Generated Article</label>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-secondary" onclick="copyNewsContent()">Copy Article</button>
+                                <button class="btn btn-sm btn-secondary" onclick="exportNewsJSON()">Export JSON</button>
+                                <button class="btn btn-sm btn-secondary" onclick="exportNewsHTML()">Export HTML</button>
+                            </div>
+                        </div>
+                        <div id="news-content-editor" class="editable-content" contenteditable="true" spellcheck="true">
+                            Generated article will appear here...
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success hidden" id="news-generation-tip">
+                        <span>💡</span>
+                        <span id="news-tip-text">Article generated successfully from multiple sources!</span>
                     </div>
                 </div>
             </div>
@@ -1252,7 +1342,8 @@ data center
                 gemini: '/api/gemini',
                 sheets: '/api/sheets',
                 analyzeContent: '/api/analyze-content',
-                internalLinking: '/api/internal-linking'
+                internalLinking: '/api/internal-linking',
+                newsExtraction: '/api/news-extraction'
             }
         };
 
@@ -1297,11 +1388,19 @@ data center
                     this.updateWordCount();
                 });
                 
-                // Prevent formatting on paste and clean input
+                // Preserve formatting on paste
                 contentEditor.addEventListener('paste', (e) => {
                     e.preventDefault();
-                    const text = (e.clipboardData || window.clipboardData).getData('text');
-                    this.insertCleanText(text);
+                    const html = (e.clipboardData || window.clipboardData).getData('text/html');
+                    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    
+                    if (html && html.trim()) {
+                        // Insert HTML content while preserving formatting
+                        this.insertFormattedContent(html);
+                    } else {
+                        // Fallback to plain text
+                        this.insertCleanText(text);
+                    }
                 });
                 
                 // Clean up on focus loss
@@ -1573,6 +1672,56 @@ data center
                     range.insertNode(document.createTextNode(text));
                     range.collapse(false);
                 }
+            }
+            
+            insertFormattedContent(html) {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    
+                    // Create a temporary container to parse the HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Clean up the HTML to remove unwanted tags and attributes
+                    this.cleanHtmlContent(tempDiv);
+                    
+                    // Insert the cleaned content
+                    const fragment = document.createDocumentFragment();
+                    while (tempDiv.firstChild) {
+                        fragment.appendChild(tempDiv.firstChild);
+                    }
+                    range.insertNode(fragment);
+                    range.collapse(false);
+                }
+            }
+            
+            cleanHtmlContent(element) {
+                // Remove unwanted attributes and tags while preserving formatting
+                const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote'];
+                const allowedAttributes = ['style'];
+                
+                // Process all child nodes
+                const children = Array.from(element.children);
+                children.forEach(child => {
+                    if (allowedTags.includes(child.tagName.toLowerCase())) {
+                        // Clean attributes
+                        const attributes = Array.from(child.attributes);
+                        attributes.forEach(attr => {
+                            if (!allowedAttributes.includes(attr.name)) {
+                                child.removeAttribute(attr.name);
+                            }
+                        });
+                        
+                        // Recursively clean child elements
+                        this.cleanHtmlContent(child);
+                    } else {
+                        // Replace disallowed tags with their text content
+                        const textNode = document.createTextNode(child.textContent);
+                        child.parentNode.replaceChild(textNode, child);
+                    }
+                });
             }
             
             // Performance-optimized update scheduling
@@ -1900,7 +2049,8 @@ data center
 
         // AI QC Functions
         async function analyzeContentQuality() {
-            const content = document.getElementById('qc-content').value;
+            const contentEditor = document.getElementById('qc-content-editor');
+            const content = contentEditor.innerText || contentEditor.textContent || '';
             const title = document.getElementById('qc-title').value;
             const keywords = document.getElementById('qc-keywords').value;
             const spinner = document.getElementById('qc-spinner');
@@ -2022,7 +2172,7 @@ data center
         }
 
         function clearQCAnalysis() {
-            document.getElementById('qc-content').value = '';
+            document.getElementById('qc-content-editor').innerHTML = '';
             document.getElementById('qc-title').value = '';
             document.getElementById('qc-keywords').value = '';
             document.getElementById('qc-status').innerHTML = '';
@@ -2077,12 +2227,13 @@ data center
         }
 
         async function generateInternalLinks() {
-            const content = document.getElementById('linking-content').value;
+            const contentEditor = document.getElementById('linking-content-editor');
+            const content = contentEditor.innerHTML || '';
             const range = document.getElementById('sheets-range').value;
             const spinner = document.getElementById('linking-spinner');
             const btn = document.getElementById('generate-links-btn');
             
-            if (!content.trim()) {
+            if (!content.trim() || content.trim() === '<br>' || content.trim() === '<div><br></div>') {
                 showStatus('linking-status', 'Please fill in content', 'error');
                 return;
             }
@@ -2100,7 +2251,8 @@ data center
                     },
                     body: JSON.stringify({
                         content: content,
-                        range: range
+                        range: range,
+                        preserveFormatting: true
                     })
                 });
                 
@@ -2121,53 +2273,275 @@ data center
         }
 
         function displayLinkingResults(result) {
-            const resultsPanel = document.getElementById('linking-results-panel');
-            resultsPanel.style.display = 'block';
+            // Update the original content editor with linked content (preserving formatting)
+            const contentEditor = document.getElementById('linking-content-editor');
+            contentEditor.innerHTML = result.linkedContent;
             
-            // Update stats
-            document.getElementById('links-added').textContent = result.linksAdded;
-            document.getElementById('total-anchors').textContent = result.matchedAnchors.length;
-            document.getElementById('success-rate').textContent = 
-                result.matchedAnchors.length > 0 ? 
-                Math.round((result.linksAdded / result.matchedAnchors.length) * 100) + '%' : 
-                '0%';
+            // Show success message with stats
+            const statusMessage = `Successfully added ${result.linksAdded} internal links! ${result.matchedAnchors.length} anchor texts were matched.`;
+            showStatus('linking-status', statusMessage, 'success');
+        }
+
+
+
+        function clearLinkingData() {
+            document.getElementById('linking-content-editor').innerHTML = '';
+            document.getElementById('linking-status').innerHTML = '';
+        }
+
+        // News Extraction Functions
+        let newsUrls = [];
+        let generatedArticle = null;
+
+        function addNewsUrl() {
+            const urlInput = document.getElementById('news-url');
+            const url = urlInput.value.trim();
             
-            // Update linked content
-            document.getElementById('linked-content-result').innerHTML = result.linkedContent;
+            if (!url) {
+                showStatus('news-status', 'Please enter a valid URL', 'error');
+                return;
+            }
             
-            // Update matched anchors
-            const matchedEl = document.getElementById('matched-anchors');
-            if (result.matchedAnchors.length > 0) {
-                matchedEl.innerHTML = result.matchedAnchors.map(anchor => `
-                    <div class="qc-issue">
-                        <div class="issue-severity low"></div>
-                        <div class="issue-text">
-                            <strong>"${anchor.text}"</strong> → ${new URL(anchor.url).hostname}
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                matchedEl.innerHTML = `
-                    <div class="text-center" style="padding: 40px; color: var(--gray-500);">
-                        No anchor texts were matched in the content
+            // Basic URL validation
+            try {
+                new URL(url);
+            } catch (e) {
+                showStatus('news-status', 'Please enter a valid URL', 'error');
+                return;
+            }
+            
+            // Check for duplicates
+            if (newsUrls.includes(url)) {
+                showStatus('news-status', 'URL already added', 'warning');
+                return;
+            }
+            
+            newsUrls.push(url);
+            urlInput.value = '';
+            updateUrlList();
+            showStatus('news-status', `Added URL: ${url}`, 'success');
+        }
+
+        function updateUrlList() {
+            const urlList = document.getElementById('url-list');
+            const urlCount = document.getElementById('url-count');
+            
+            urlCount.textContent = newsUrls.length;
+            
+            if (newsUrls.length === 0) {
+                urlList.innerHTML = '<div class="text-center" style="padding: 20px; color: var(--gray-500);">No URLs added yet</div>';
+                return;
+            }
+            
+            let html = '<div style="padding: 10px;">';
+            newsUrls.forEach((url, index) => {
+                html += `
+                    <div class="suggestion-item" style="margin-bottom: 8px;">
+                        <span class="suggestion-topic" style="max-width: 80%;">${url}</span>
+                        <span class="suggestion-action" onclick="removeNewsUrl(${index})" style="cursor: pointer; color: var(--error);">Remove</span>
                     </div>
                 `;
+            });
+            html += '</div>';
+            urlList.innerHTML = html;
+        }
+
+        function removeNewsUrl(index) {
+            newsUrls.splice(index, 1);
+            updateUrlList();
+            showStatus('news-status', 'URL removed', 'info');
+        }
+
+        async function extractAndGenerateNews() {
+            const articleTitle = document.getElementById('article-title').value.trim();
+            
+            if (!articleTitle) {
+                showStatus('news-status', 'Please enter an article title', 'error');
+                return;
+            }
+            
+            if (newsUrls.length === 0) {
+                showStatus('news-status', 'Please add at least one news URL', 'error');
+                return;
+            }
+            
+            const spinner = document.getElementById('news-spinner');
+            const btn = document.getElementById('extract-news-btn');
+            
+            // Show loading state
+            spinner.classList.remove('hidden');
+            btn.disabled = true;
+            showStatus('news-status', 'Extracting content from news sources...', 'info');
+            
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(config.apiBaseUrl + config.endpoints.newsExtraction, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: articleTitle,
+                        urls: newsUrls
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                displayGeneratedArticle(result);
+                
+                const endTime = performance.now();
+                const generationTime = Math.round(endTime - startTime);
+                
+                showStatus('news-status', `Article generated successfully in ${generationTime}ms!`, 'success');
+                
+            } catch (error) {
+                showStatus('news-status', `News extraction failed: ${error.message}`, 'error');
+            } finally {
+                spinner.classList.add('hidden');
+                btn.disabled = false;
             }
         }
 
-        function copyLinkedContent() {
-            const content = document.getElementById('linked-content-result').innerHTML;
+        function displayGeneratedArticle(result) {
+            const contentEditor = document.getElementById('news-content-editor');
+            const wordCountEl = document.getElementById('news-word-count');
+            const sourcesUsedEl = document.getElementById('sources-used');
+            const articleLengthEl = document.getElementById('article-length');
+            const sourceCountEl = document.getElementById('source-count');
+            const processingStatusEl = document.getElementById('processing-status');
+            const tipDiv = document.getElementById('news-generation-tip');
+            
+            // Display the generated article
+            contentEditor.innerHTML = result.article || 'No article generated';
+            
+            // Update stats
+            const wordCount = result.article ? result.article.split(/\s+/).length : 0;
+            wordCountEl.textContent = wordCount;
+            sourcesUsedEl.textContent = result.sourceCount || newsUrls.length;
+            articleLengthEl.textContent = result.article ? result.article.length : 0;
+            sourceCountEl.textContent = newsUrls.length;
+            processingStatusEl.textContent = 'Completed';
+            
+            // Show stats grid
+            document.getElementById('news-stats-grid').style.display = 'grid';
+            
+            // Show success tip
+            tipDiv.classList.remove('hidden');
+            
+            // Store the generated article for export
+            generatedArticle = result;
+        }
+
+        function copyNewsContent() {
+            const content = document.getElementById('news-content-editor').innerText;
             navigator.clipboard.writeText(content).then(() => {
-                showStatus('linking-status', 'Linked content copied to clipboard!', 'success');
+                showStatus('news-status', "Article copied to clipboard!", "success");
             }).catch(err => {
-                showStatus('linking-status', 'Failed to copy content', 'error');
+                showStatus('news-status', "Failed to copy article", "error");
             });
         }
 
-        function clearLinkingData() {
-            document.getElementById('linking-content').value = '';
-            document.getElementById('linking-status').innerHTML = '';
-            document.getElementById('linking-results-panel').style.display = 'none';
+        function exportNewsJSON() {
+            if (!generatedArticle) {
+                showStatus('news-status', "No article to export", "error");
+                return;
+            }
+            
+            const exportData = {
+                title: document.getElementById('article-title').value,
+                article: generatedArticle.article,
+                sources: newsUrls,
+                metadata: generatedArticle.metadata || {},
+                generatedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `news-article-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('news-status', "JSON exported successfully!", "success");
+        }
+
+        function exportNewsHTML() {
+            if (!generatedArticle) {
+                showStatus('news-status', "No article to export", "error");
+                return;
+            }
+            
+            const title = document.getElementById('article-title').value;
+            const article = generatedArticle.article;
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #333; border-bottom: 2px solid #14b8a6; padding-bottom: 10px; }
+        h2 { color: #555; margin-top: 30px; }
+        p { margin-bottom: 15px; }
+        .sources { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .sources h3 { color: #666; }
+        .sources ul { list-style-type: none; padding: 0; }
+        .sources li { margin-bottom: 5px; }
+        .sources a { color: #14b8a6; text-decoration: none; }
+        .sources a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>${title}</h1>
+    <div class="article-content">
+        ${article.replace(/\n/g, '<br>')}
+    </div>
+    <div class="sources">
+        <h3>Sources:</h3>
+        <ul>
+            ${newsUrls.map(url => `<li><a href="${url}" target="_blank">${url}</a></li>`).join('')}
+        </ul>
+    </div>
+</body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `news-article-${Date.now()}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('news-status', "HTML exported successfully!", "success");
+        }
+
+        function clearNewsData() {
+            if (confirm('Are you sure you want to clear all news data?')) {
+                newsUrls = [];
+                generatedArticle = null;
+                document.getElementById('article-title').value = '';
+                document.getElementById('news-url').value = '';
+                document.getElementById('news-content-editor').innerHTML = 'Generated article will appear here...';
+                document.getElementById('news-status').innerHTML = '';
+                document.getElementById('news-stats-grid').style.display = 'none';
+                document.getElementById('news-generation-tip').classList.add('hidden');
+                updateUrlList();
+                showStatus('news-status', 'All data cleared', 'info');
+            }
         }
 
         // Utility Functions
@@ -2191,7 +2565,100 @@ data center
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize word count
             seoOptimizer.updateWordCount();
+            
+            // Add formatting preservation to QC content editor
+            const qcContentEditor = document.getElementById('qc-content-editor');
+            if (qcContentEditor) {
+                qcContentEditor.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const html = (e.clipboardData || window.clipboardData).getData('text/html');
+                    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    
+                    if (html && html.trim()) {
+                        insertFormattedContentToElement(this, html);
+                    } else {
+                        insertCleanTextToElement(this, text);
+                    }
+                });
+            }
+            
+            // Add formatting preservation to Internal Linking content editor
+            const linkingContentEditor = document.getElementById('linking-content-editor');
+            if (linkingContentEditor) {
+                linkingContentEditor.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const html = (e.clipboardData || window.clipboardData).getData('text/html');
+                    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    
+                    if (html && html.trim()) {
+                        insertFormattedContentToElement(this, html);
+                    } else {
+                        insertCleanTextToElement(this, text);
+                    }
+                });
+            }
         });
+        
+        // Helper functions for formatting preservation
+        function insertCleanTextToElement(element, text) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(text));
+                range.collapse(false);
+            }
+        }
+        
+        function insertFormattedContentToElement(element, html) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                
+                // Create a temporary container to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Clean up the HTML to remove unwanted tags and attributes
+                cleanHtmlContent(tempDiv);
+                
+                // Insert the cleaned content
+                const fragment = document.createDocumentFragment();
+                while (tempDiv.firstChild) {
+                    fragment.appendChild(tempDiv.firstChild);
+                }
+                range.insertNode(fragment);
+                range.collapse(false);
+            }
+        }
+        
+        function cleanHtmlContent(element) {
+            // Remove unwanted attributes and tags while preserving formatting
+            const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote'];
+            const allowedAttributes = ['style'];
+            
+            // Process all child nodes
+            const children = Array.from(element.children);
+            children.forEach(child => {
+                if (allowedTags.includes(child.tagName.toLowerCase())) {
+                    // Clean attributes
+                    const attributes = Array.from(child.attributes);
+                    attributes.forEach(attr => {
+                        if (!allowedAttributes.includes(attr.name)) {
+                            child.removeAttribute(attr.name);
+                        }
+                    });
+                    
+                    // Recursively clean child elements
+                    cleanHtmlContent(child);
+                } else {
+                    // Replace disallowed tags with their text content
+                    const textNode = document.createTextNode(child.textContent);
+                    child.parentNode.replaceChild(textNode, child);
+                }
+            });
+        }
     </script>
 </body>
 </html>
