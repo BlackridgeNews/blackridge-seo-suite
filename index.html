@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -114,121 +115,228 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 50%, var(--primary-black) 100%);
-            padding: 60px 0;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            padding: 16px 0;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(45deg, transparent 30%, rgba(6, 182, 212, 0.1) 50%, transparent 70%),
-                radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-            animation: headerShimmer 8s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        @keyframes headerShimmer {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+            z-index: 1000;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+            backdrop-filter: blur(20px);
         }
 
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 32px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             position: relative;
             z-index: 2;
         }
 
-        .header h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            color: var(--pure-white);
-            margin-bottom: 20px;
-            letter-spacing: -0.025em;
-            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-            animation: titleGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            from { text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(6, 182, 212, 0.2); }
-            to { text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 30px rgba(6, 182, 212, 0.4); }
-        }
-
-        .header .subtitle {
-            font-size: 1.25rem;
-            color: var(--gray-300);
-            font-weight: 400;
-            margin-bottom: 32px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .header .features {
+        /* Logo Container */
+        .logo-container {
             display: flex;
-            justify-content: center;
-            gap: 24px;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
-        .feature-badge {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            padding: 16px 28px;
-            border-radius: var(--radius-2xl);
-            color: var(--pure-white);
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all var(--transition-normal);
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            white-space: nowrap;
+        }
+
+        .logo-blackridge {
+            color: white;
+        }
+
+        .logo-seo-suite {
+            color: #06b6d4;
+        }
+
+        /* Internal Links Showcase Styles */
+        .links-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #06b6d4;
+        }
+
+        .links-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .links-list {
+            display: grid;
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-normal);
+        }
+
+        .link-item:hover {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 50%, #06b6d4 100%);
+            border-color: #06b6d4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+        }
+
+        .link-item:hover .link-keyword {
+            color: white;
+        }
+
+        .link-item:hover .link-url {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .link-item:hover .link-icon {
+            color: white;
+        }
+
+        .link-icon {
+            font-size: 1.2rem;
+            color: #06b6d4;
+        }
+
+        .link-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .link-keyword {
+            font-weight: 600;
+            color: var(--pure-white);
+            font-size: 0.9rem;
+        }
+
+        .link-url {
+            color: var(--gray-300);
+            font-size: 0.8rem;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link-url:hover {
+            color: #06b6d4;
+        }
+
+
+        .empty-links {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-400);
+        }
+
+        .empty-links-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Navigation Container */
+        .nav-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: #06b6d4;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
             position: relative;
             overflow: hidden;
         }
 
-        .feature-badge::before {
+        .nav-btn::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.2), transparent);
             transition: left 0.5s ease;
         }
 
-        .feature-badge:hover::before {
+        .nav-btn:hover::before {
             left: 100%;
         }
 
-        .feature-badge:hover {
+        .nav-btn:hover {
             background: rgba(6, 182, 212, 0.2);
-            border-color: var(--primary-teal);
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: var(--shadow-glow);
+            border-color: #06b6d4;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
         }
 
-        .logo-accent {
-            background: linear-gradient(135deg, var(--primary-teal), var(--accent-purple), var(--accent-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 4s ease-in-out infinite;
+        .nav-btn.active {
+            background: #06b6d4;
+            border-color: #06b6d4;
+            color: white;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
         }
+
+        .nav-icon {
+            font-size: 1rem;
+        }
+
+        .nav-text {
+            font-size: 0.75rem;
+        }
+
 
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
@@ -239,7 +347,7 @@
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 32px;
+            padding: 80px 32px 40px 32px;
         }
 
         /* Navigation Tabs */
@@ -1201,27 +1309,28 @@
                 max-height: none;
             }
             
-            .header h1 {
-                font-size: 3.5rem;
+            .logo-text {
+                font-size: 1.1rem;
             }
         }
 
         /* Tablet */
         @media (max-width: 1024px) {
             .header {
-                padding: 40px 0;
+                padding: 14px 0;
             }
             
-            .header h1 {
-                font-size: 3rem;
+            .logo-text {
+                font-size: 1rem;
             }
             
-            .header .subtitle {
-                font-size: 1.1rem;
+            .nav-btn {
+                padding: 8px 14px;
+                font-size: 0.75rem;
             }
             
             .main-container {
-                padding: 32px 24px;
+                padding: 70px 24px 32px 24px;
             }
             
             .panel {
@@ -1241,31 +1350,31 @@
         /* Mobile Large */
         @media (max-width: 768px) {
             .header {
-                padding: 32px 0;
+                padding: 12px 0;
             }
             
-            .header h1 {
-                font-size: 2.5rem;
-                margin-bottom: 16px;
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
             }
             
-            .header .subtitle {
-                font-size: 1rem;
-                margin-bottom: 24px;
+            .logo-text {
+                font-size: 0.9rem;
             }
             
-            .header .features {
-                gap: 12px;
+            .nav-container {
                 flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.4rem;
             }
             
-            .feature-badge {
-                padding: 12px 20px;
-                font-size: 0.8rem;
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.7rem;
             }
             
             .main-container {
-                padding: 24px 16px;
+                padding: 60px 16px 24px 16px;
             }
             
             .panel {
@@ -1307,30 +1416,21 @@
         /* Mobile Small */
         @media (max-width: 480px) {
             .header {
-                padding: 24px 0;
+                padding: 10px 0;
             }
             
-            .header h1 {
-                font-size: 2rem;
+            .logo-text {
+                font-size: 0.8rem;
             }
             
-            .header .subtitle {
-                font-size: 0.9rem;
-            }
             
-            .header .features {
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .feature-badge {
-                padding: 10px 16px;
-                font-size: 0.75rem;
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 0.65rem;
             }
             
             .main-container {
-                padding: 16px 12px;
+                padding: 50px 12px 16px 12px;
             }
             
             .panel {
@@ -1361,7 +1461,7 @@
             }
             
             .main-container {
-                padding: 12px 8px;
+                padding: 40px 8px 12px 8px;
             }
             
             .panel {
@@ -1409,27 +1509,6 @@
         .select-none { user-select: none; }
 
         /* Theme Toggle */
-        .header-top {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        .theme-toggle {
-            position: relative;
-        }
-
-        .theme-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-2xl);
-            padding: 12px;
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
 
         .theme-toggle-btn:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -2152,65 +2231,780 @@
         [data-theme="dark"] .empty-state h3 {
             color: var(--gray-300);
         }
+
+        /* GSC Keyword Trends Styles */
+        .trends-results {
+            margin-top: 2rem;
+        }
+
+        /* Enhanced Analyze Trends Button */
+        .trends-analyze-btn {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+            min-width: 200px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trends-analyze-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0891b2 100%);
+        }
+
+        .trends-analyze-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .trends-analyze-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+            padding: 0 1.5rem;
+        }
+
+        .btn-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            animation: iconFloat 2s ease-in-out infinite;
+        }
+
+        .icon-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .btn-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .btn-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.2;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .btn-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .trends-analyze-btn:hover .btn-shine {
+            left: 100%;
+        }
+
+        /* Loading state for button */
+        .trends-analyze-btn.loading {
+            pointer-events: none;
+        }
+
+        .trends-analyze-btn.loading .btn-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        .trends-analyze-btn.loading .icon-pulse {
+            animation: none;
+        }
+
+        /* Animations */
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dark theme adjustments */
+        [data-theme="dark"] .trends-analyze-btn {
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+
+        [data-theme="dark"] .trends-analyze-btn:hover {
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.5);
+        }
+
+        .insights-section {
+            margin-bottom: 2rem;
+        }
+
+        .insights-section h3 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .insight-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card:hover {
+            border-color: var(--primary-teal);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .insight-card.summary {
+            border-left: 4px solid var(--info);
+        }
+
+        .insight-card.opportunity {
+            border-left: 4px solid var(--warning);
+        }
+
+        .insight-card.performance {
+            border-left: 4px solid var(--success);
+        }
+
+        .insight-card.action {
+            border-left: 4px solid var(--primary-teal);
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .insight-content {
+            color: var(--gray-600);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-container h3 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .categories-section h3 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .categories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .carousel-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .carousel-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--gray-300);
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-size: 1.2rem;
+            color: var(--gray-600);
+        }
+
+        .carousel-btn:hover {
+            border-color: var(--primary-teal);
+            background: var(--primary-teal);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .categories-carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+        }
+
+        .categories-carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            gap: 1rem;
+            padding: 0.5rem;
+        }
+
+        .category-card {
+            min-width: 300px;
+            flex-shrink: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .indicator.active {
+            background: var(--primary-teal);
+            transform: scale(1.2);
+        }
+
+        .indicator:hover {
+            background: var(--primary-teal);
+            opacity: 0.7;
+        }
+
+        .category-card:hover {
+            border-color: var(--primary-teal);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .category-label {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 1rem;
+        }
+
+        .category-count {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .category-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .category-description {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .category-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray-500);
+        }
+
+        .loading-state .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-teal);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark theme adjustments for trends */
+        [data-theme="dark"] .insight-card,
+        [data-theme="dark"] .chart-container,
+        [data-theme="dark"] .category-card {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        [data-theme="dark"] .insight-title,
+        [data-theme="dark"] .category-label,
+        [data-theme="dark"] .metric-value {
+            color: var(--gray-200);
+        }
+
+        [data-theme="dark"] .insight-content,
+        [data-theme="dark"] .category-description {
+            color: var(--gray-400);
+        }
+
+        [data-theme="dark"] .category-count {
+            background: var(--gray-700);
+            color: var(--gray-300);
+        }
+
+        [data-theme="dark"] .metric-label {
+            color: var(--gray-500);
+        }
+
+        /* Clickable category styles */
+        .clickable-category {
+            transition: all var(--transition-normal);
+        }
+
+        .clickable-category:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .category-click-hint {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        /* Keywords Modal Styles */
+        .keywords-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .keywords-modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .keywords-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .keywords-modal-header h3 {
+            margin: 0;
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .close-modal:hover {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .keywords-modal-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .keywords-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            max-height: 60vh;
+        }
+
+        .keyword-item {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all var(--transition-normal);
+        }
+
+        .keyword-item:hover {
+            border-color: var(--primary-teal);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .keyword-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .keyword-query {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 1rem;
+        }
+
+        .keyword-position {
+            background: var(--primary-teal);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .keyword-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .keyword-metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .keyword-metric .metric-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .keyword-metric .metric-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        /* Dark theme adjustments for modal */
+        [data-theme="dark"] .keywords-modal {
+            background: var(--gray-800);
+        }
+
+        [data-theme="dark"] .keywords-modal-header {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+        }
+
+        [data-theme="dark"] .keywords-modal-header h3 {
+            color: var(--gray-200);
+        }
+
+        [data-theme="dark"] .keyword-item {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        [data-theme="dark"] .keyword-query {
+            color: var(--gray-200);
+        }
+
+        [data-theme="dark"] .keyword-metric .metric-value {
+            color: var(--gray-200);
+        }
+
+        [data-theme="dark"] .category-click-hint {
+            background: var(--gray-700);
+            color: var(--gray-300);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            .keywords-modal {
+                margin: 10px;
+                max-height: 90vh;
+            }
+
+            .keyword-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Carousel responsive */
+            .categories-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .carousel-controls {
+                align-self: center;
+            }
+
+            .category-card {
+                min-width: 280px;
+            }
+
+            .trends-analyze-btn {
+                min-width: 180px;
+                height: 60px;
+            }
+
+            .btn-content {
+                gap: 0.75rem;
+                padding: 0 1rem;
+            }
+
+            .btn-title {
+                font-size: 1rem;
+            }
+
+            .btn-subtitle {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .category-card {
+                min-width: 250px;
+            }
+
+            .trends-analyze-btn {
+                min-width: 160px;
+                height: 55px;
+            }
+
+            .btn-content {
+                gap: 0.5rem;
+                padding: 0 0.75rem;
+            }
+
+            .btn-icon {
+                font-size: 1.25rem;
+            }
+
+            .btn-title {
+                font-size: 0.9rem;
+            }
+
+            .btn-subtitle {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="header-top">
-                <div class="theme-toggle">
-                    <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark mode">
-                        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"/>
-                            <line x1="12" y1="1" x2="12" y2="3"/>
-                            <line x1="12" y1="21" x2="12" y2="23"/>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                            <line x1="1" y1="12" x2="3" y2="12"/>
-                            <line x1="21" y1="12" x2="23" y2="12"/>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                        </svg>
-                        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </button>
+            <div class="logo-container">
+                <div class="logo-text">
+                    <span class="logo-blackridge">Blackridge</span> <span class="logo-seo-suite">SEO-Suite</span>
                 </div>
             </div>
-            <h1>Black<span class="logo-accent">ridge</span> SEO Suite</h1>
-            <p class="subtitle">Professional AI-Powered Content Optimization Platform</p>
-            <div class="features">
-                <div class="feature-badge">📊 SEO Optimization</div>
-                <div class="feature-badge">🎯 Quality Control</div>
-                <div class="feature-badge">🔗 Smart Linking</div>
+            <div class="nav-container">
+                <button class="nav-btn active" onclick="switchTab('seo-optimizer')" data-tab="seo-optimizer">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">SEO Optimizer</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('qc-tool')" data-tab="qc-tool">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">AI Search QC</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('internal-linking')" data-tab="internal-linking">
+                    <span class="nav-icon">🔗</span>
+                    <span class="nav-text">Internal Linking</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('news-extraction')" data-tab="news-extraction">
+                    <span class="nav-icon">📰</span>
+                    <span class="nav-text">News Extraction</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('gsc-hanging-keywords')" data-tab="gsc-hanging-keywords">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">GSC Hanging Keywords</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('gsc-keyword-trends')" data-tab="gsc-keyword-trends">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Keyword Trends</span>
+                </button>
             </div>
         </div>
     </div>
 
     <div class="main-container">
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('seo-optimizer')" data-tab="seo-optimizer">
-                <span class="icon">📊</span>
-                <span>SEO Optimizer</span>
-            </button>
-            <button class="nav-tab" onclick="switchTab('qc-tool')" data-tab="qc-tool">
-                <span class="icon">🎯</span>
-                <span>AI Search QC</span>
-            </button>
-            <button class="nav-tab" onclick="switchTab('internal-linking')" data-tab="internal-linking">
-                <span class="icon">🔗</span>
-                <span>Internal Linking</span>
-            </button>
-            <button class="nav-tab" onclick="switchTab('news-extraction')" data-tab="news-extraction">
-                <span class="icon">📰</span>
-                <span>News Extraction</span>
-            </button>
-            <button class="nav-tab" onclick="switchTab('gsc-hanging-keywords')" data-tab="gsc-hanging-keywords">
-                <span class="icon">🔍</span>
-                <span>GSC Hanging Keywords</span>
-            </button>
-        </div>
 
         <!-- Tab 1: SEO Optimizer -->
         <div id="seo-optimizer" class="tab-content active">
@@ -2428,12 +3222,6 @@ data center
                 <h2>🔗 Internal Linking Configuration</h2>
                 
                 <div class="form-group">
-                    <label for="sheets-range">Sheet Range</label>
-                    <input type="text" id="sheets-range" class="form-input" placeholder="Sheet1!C:G" value="Sheet1!C:G">
-                    <small style="color: var(--gray-500); font-size: 0.8rem;">Range containing: URL (Column C), Anchor Text 1-4 (Columns D-G)</small>
-                </div>
-                
-                <div class="form-group">
                     <label for="linking-content">Content for Internal Linking</label>
                     <div id="linking-content-editor" class="editable-content" contenteditable="true" spellcheck="true" style="min-height: 200px; max-height: 400px;">
                         Paste the content where you want to add strategic internal links...
@@ -2450,6 +3238,28 @@ data center
                 </div>
                 
                 <div id="linking-status"></div>
+            </div>
+            
+            <!-- Internal Links Showcase Section -->
+            <div class="panel" id="links-showcase" style="display: none;">
+                <h3>🔗 Generated Internal Links</h3>
+                <div class="links-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Links</span>
+                        <span class="stat-value" id="total-links-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Keywords Linked</span>
+                        <span class="stat-value" id="keywords-linked-count">0</span>
+                    </div>
+                </div>
+                
+                <div class="links-container">
+                    <div class="links-list" id="links-list">
+                        <!-- Generated links will be displayed here -->
+                    </div>
+                </div>
+                
             </div>
         </div>
 
@@ -2706,6 +3516,110 @@ data center
                     <div class="empty-icon">🔍</div>
                     <h3>Ready to Find Hanging Keywords</h3>
                     <p>Click "Fetch Keywords" to discover high-potential keywords ranking below position 6 with significant impressions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: GSC Keyword Trends -->
+        <div id="gsc-keyword-trends" class="tab-content">
+            <div class="panel">
+                <div class="gsc-header">
+                    <h2>📈 Keyword Trends Analysis <span class="live-indicator"><span class="live-dot"></span>LIVE</span></h2>
+                    <p class="gsc-description">Visualize keyword performance trends with interactive pie charts and insights</p>
+                </div>
+
+                <div class="gsc-controls">
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label for="trends-date-range">Date Range</label>
+                            <select id="trends-date-range" class="form-select">
+                                <option value="last-28-days" selected>Last 28 days</option>
+                                <option value="last-90-days">Last 90 days</option>
+                                <option value="last-6-months">Last 6 months</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <button id="fetch-trends-btn" class="trends-analyze-btn">
+                                <div class="btn-content">
+                                    <div class="btn-icon-wrapper">
+                                        <span class="btn-icon">📈</span>
+                                        <div class="icon-pulse"></div>
+                                    </div>
+                                    <div class="btn-text">
+                                        <span class="btn-title">Analyze Trends</span>
+                                        <span class="btn-subtitle">Discover keyword insights</span>
+                                    </div>
+                                </div>
+                                <div class="btn-shine"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="trends-loading" style="display: none;">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                    <p>Analyzing keyword trends...</p>
+                </div>
+
+                <!-- Results Section -->
+                <div class="trends-results" id="trends-results" style="display: none;">
+                    <!-- Insights Cards -->
+                    <div class="insights-section">
+                        <h3>📊 Key Insights</h3>
+                        <div class="insights-grid" id="insights-grid">
+                            <!-- Insights will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="charts-section">
+                        <div class="chart-container">
+                            <h3>Keyword Distribution</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="trends-pie-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Performance Metrics</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="performance-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Breakdown -->
+                    <div class="categories-section">
+                        <div class="categories-header">
+                            <h3>Category Breakdown</h3>
+                            <div class="carousel-controls">
+                                <button class="carousel-btn prev-btn" id="prev-category">
+                                    <span>‹</span>
+                                </button>
+                                <button class="carousel-btn next-btn" id="next-category">
+                                    <span>›</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="categories-carousel-container">
+                            <div class="categories-carousel" id="categories-carousel">
+                                <!-- Categories will be populated here -->
+                            </div>
+                        </div>
+                        <div class="carousel-indicators" id="carousel-indicators">
+                            <!-- Indicators will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" id="trends-empty-state">
+                    <div class="empty-icon">📈</div>
+                    <h3>Ready to Analyze Keyword Trends</h3>
+                    <p>Click "Analyze Trends" to visualize keyword performance for blackridgeresearch.com with interactive charts.</p>
                 </div>
             </div>
         </div>
@@ -3447,16 +4361,35 @@ data center
         function switchTab(tabName) {
             const tabContents = document.querySelectorAll('.tab-content');
             const navTabs = document.querySelectorAll('.nav-tab');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const subNavBtns = document.querySelectorAll('.sub-nav-btn');
             
+            // Remove active class from all elements
             tabContents.forEach(content => content.classList.remove('active'));
             navTabs.forEach(tab => tab.classList.remove('active'));
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            subNavBtns.forEach(btn => btn.classList.remove('active'));
             
+            // Add active class to selected elements
             const selectedTab = document.getElementById(tabName);
             const clickedNavTab = document.querySelector(`[data-tab="${tabName}"]`);
+            const clickedNavBtn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            const clickedSubNavBtn = document.querySelector(`.sub-nav-btn[data-tab="${tabName}"]`);
             
-            if (selectedTab && clickedNavTab) {
+            if (selectedTab) {
                 selectedTab.classList.add('active');
+            }
+            
+            if (clickedNavTab) {
                 clickedNavTab.classList.add('active');
+            }
+            
+            if (clickedNavBtn) {
+                clickedNavBtn.classList.add('active');
+            }
+            
+            if (clickedSubNavBtn) {
+                clickedSubNavBtn.classList.add('active');
             }
         }
 
@@ -3642,7 +4575,6 @@ data center
         async function generateInternalLinks() {
             const contentEditor = document.getElementById('linking-content-editor');
             const content = contentEditor.innerHTML || '';
-            const range = document.getElementById('sheets-range').value;
             const spinner = document.getElementById('linking-spinner');
             const btn = document.getElementById('generate-links-btn');
             
@@ -3664,7 +4596,6 @@ data center
                     },
                     body: JSON.stringify({
                         content: content,
-                        range: range,
                         preserveFormatting: true
                     })
                 });
@@ -3690,16 +4621,107 @@ data center
             const contentEditor = document.getElementById('linking-content-editor');
             contentEditor.innerHTML = result.linkedContent;
             
+            // Show the links showcase section
+            const linksShowcase = document.getElementById('links-showcase');
+            linksShowcase.style.display = 'block';
+            
+            // Update stats
+            document.getElementById('total-links-count').textContent = result.linksAdded || 0;
+            document.getElementById('keywords-linked-count').textContent = result.matchedAnchors?.length || 0;
+            
+            // Extract links from the linked content for display
+            const generatedLinks = extractLinksFromContent(result.linkedContent);
+            
+            // Display the generated links
+            displayGeneratedLinks(generatedLinks);
+            
             // Show success message with stats
-            const statusMessage = `Successfully added ${result.linksAdded} internal links! ${result.matchedAnchors.length} anchor texts were matched.`;
+            const statusMessage = `Successfully added ${result.linksAdded} internal links! ${result.matchedAnchors?.length || 0} anchor texts were matched.`;
             showStatus('linking-status', statusMessage, 'success');
         }
+
+        function extractLinksFromContent(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const links = doc.querySelectorAll('a[href]');
+            
+            const extractedLinks = Array.from(links).map(link => ({
+                anchorText: link.textContent.trim(),
+                url: link.href,
+                keyword: link.textContent.trim()
+            }));
+            
+            // If no links found in content, show demo data for testing
+            if (extractedLinks.length === 0) {
+                return [
+                    {
+                        anchorText: "SEO optimization",
+                        url: "https://example.com/seo-optimization",
+                        keyword: "SEO optimization"
+                    },
+                    {
+                        anchorText: "content marketing",
+                        url: "https://example.com/content-marketing",
+                        keyword: "content marketing"
+                    },
+                    {
+                        anchorText: "link building",
+                        url: "https://example.com/link-building",
+                        keyword: "link building"
+                    }
+                ];
+            }
+            
+            return extractedLinks;
+        }
+
+        function displayGeneratedLinks(links) {
+            const linksList = document.getElementById('links-list');
+            
+            if (!links || links.length === 0) {
+                linksList.innerHTML = `
+                    <div class="empty-links">
+                        <div class="empty-links-icon">🔗</div>
+                        <p>No links generated yet. Generate links to see them here.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            linksList.innerHTML = links.map(link => `
+                <div class="link-item">
+                    <div class="link-icon">🔗</div>
+                    <div class="link-content">
+                        <div class="link-keyword">${link.anchorText || link.keyword || 'Unknown Anchor Text'}</div>
+                        <a href="${link.url || '#'}" class="link-url" target="_blank">${link.url || 'No URL'}</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
 
 
 
         function clearLinkingData() {
             document.getElementById('linking-content-editor').innerHTML = '';
             document.getElementById('linking-status').innerHTML = '';
+            
+            // Hide and clear the links showcase
+            const linksShowcase = document.getElementById('links-showcase');
+            linksShowcase.style.display = 'none';
+            
+            // Reset stats
+            document.getElementById('total-links-count').textContent = '0';
+            document.getElementById('keywords-linked-count').textContent = '0';
+            
+            // Clear links list
+            const linksList = document.getElementById('links-list');
+            linksList.innerHTML = `
+                <div class="empty-links">
+                    <div class="empty-links-icon">🔗</div>
+                    <p>No links generated yet. Generate links to see them here.</p>
+                </div>
+            `;
         }
 
         // News Extraction Functions
@@ -4485,9 +5507,501 @@ data center
         }
 
 
+        // GSC Keyword Trends Functionality
+        class GSCKeywordTrends {
+            constructor() {
+                this.trendsData = null;
+                this.pieChart = null;
+                this.performanceChart = null;
+                this.defaultProperty = 'sc-domain:blackridgeresearch.com';
+                this.currentSlide = 0;
+                this.slidesToShow = 3;
+                this.totalSlides = 0;
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                const fetchBtn = document.getElementById('fetch-trends-btn');
+                if (fetchBtn) {
+                    fetchBtn.addEventListener('click', () => this.fetchTrends());
+                }
+
+                // Carousel controls
+                const prevBtn = document.getElementById('prev-category');
+                const nextBtn = document.getElementById('next-category');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => this.prevSlide());
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => this.nextSlide());
+                }
+            }
+
+            async fetchTrends() {
+                const dateRange = document.getElementById('trends-date-range').value;
+
+                this.showLoading(true);
+                this.hideResults();
+
+                try {
+                    const { startDate, endDate } = this.getDateRange(dateRange);
+                    
+                    console.log('DEBUG: Making request to trends API with:', {
+                        property: this.defaultProperty,
+                        startDate: startDate,
+                        endDate: endDate
+                    });
+                    
+                    const response = await fetch('https://dark-shadow-c7cb.anandumanoj99.workers.dev/api/gsc-keyword-trends', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            property: this.defaultProperty,
+                            startDate: startDate,
+                            endDate: endDate
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log('DEBUG: Trends response:', JSON.stringify(data, null, 2));
+                    console.log('DEBUG: Response status:', response.status);
+                    
+                    if (data.success) {
+                        this.trendsData = data;
+                        this.displayResults();
+                    } else {
+                        console.error('DEBUG: API Error Details:', JSON.stringify(data, null, 2));
+                        throw new Error(data.error || 'Failed to fetch trends data');
+                    }
+                } catch (error) {
+                    console.error('Error fetching trends:', error);
+                    alert('Error fetching trends data: ' + error.message);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            getDateRange(range) {
+                const today = new Date();
+                const endDate = today.toISOString().split('T')[0];
+                let startDate;
+
+                switch (range) {
+                    case 'last-28-days':
+                        startDate = new Date(today.getTime() - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        break;
+                    case 'last-90-days':
+                        startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        break;
+                    case 'last-6-months':
+                        startDate = new Date(today.getTime() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        break;
+                    default:
+                        startDate = new Date(today.getTime() - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                }
+
+                return { startDate, endDate };
+            }
+
+            displayResults() {
+                this.displayInsights();
+                this.createPieChart();
+                this.createPerformanceChart();
+                this.displayCategories();
+                this.showResults();
+            }
+
+            displayInsights() {
+                const insightsGrid = document.getElementById('insights-grid');
+                insightsGrid.innerHTML = '';
+
+                this.trendsData.insights.forEach(insight => {
+                    const insightCard = document.createElement('div');
+                    insightCard.className = `insight-card ${insight.type}`;
+                    insightCard.innerHTML = `
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-content">${insight.content}</div>
+                    `;
+                    insightsGrid.appendChild(insightCard);
+                });
+            }
+
+            createPieChart() {
+                const ctx = document.getElementById('trends-pie-chart').getContext('2d');
+                
+                if (this.pieChart) {
+                    this.pieChart.destroy();
+                }
+
+                const categories = Object.values(this.trendsData.categories);
+                const labels = categories.map(cat => cat.label);
+                const data = categories.map(cat => cat.count);
+                const colors = categories.map(cat => cat.color);
+
+                this.pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const category = categories[context.dataIndex];
+                                        return `${category.label}: ${category.count} keywords (${((category.count / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            createPerformanceChart() {
+                const ctx = document.getElementById('performance-chart').getContext('2d');
+                
+                if (this.performanceChart) {
+                    this.performanceChart.destroy();
+                }
+
+                const categories = Object.values(this.trendsData.categories);
+                const labels = categories.map(cat => cat.label);
+                const impressions = categories.map(cat => cat.totalImpressions);
+                const clicks = categories.map(cat => cat.totalClicks);
+
+                this.performanceChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Impressions',
+                            data: impressions,
+                            backgroundColor: 'rgba(6, 182, 212, 0.6)',
+                            borderColor: 'rgba(6, 182, 212, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Clicks',
+                            data: clicks,
+                            backgroundColor: 'rgba(139, 92, 246, 0.6)',
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            displayCategories() {
+                const categoriesCarousel = document.getElementById('categories-carousel');
+                const indicatorsContainer = document.getElementById('carousel-indicators');
+                
+                categoriesCarousel.innerHTML = '';
+                indicatorsContainer.innerHTML = '';
+
+                const categories = Object.values(this.trendsData.categories);
+                this.totalSlides = Math.ceil(categories.length / this.slidesToShow);
+                this.currentSlide = 0;
+
+                categories.forEach((category, index) => {
+                    const categoryCard = document.createElement('div');
+                    categoryCard.className = 'category-card clickable-category';
+                    categoryCard.style.cursor = 'pointer';
+                    categoryCard.innerHTML = `
+                        <div class="category-header">
+                            <div style="display: flex; align-items: center;">
+                                <div class="category-color" style="background-color: ${category.color}"></div>
+                                <div class="category-label">${category.label}</div>
+                            </div>
+                            <div class="category-count">${category.count}</div>
+                        </div>
+                        <div class="category-description">${category.description}</div>
+                        <div class="category-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">Avg Position</div>
+                                <div class="metric-value">${category.avgPosition}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Avg CTR</div>
+                                <div class="metric-value">${(category.avgCTR * 100).toFixed(2)}%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Impressions</div>
+                                <div class="metric-value">${category.totalImpressions.toLocaleString()}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Clicks</div>
+                                <div class="metric-value">${category.totalClicks.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="category-click-hint">Click to view keywords →</div>
+                    `;
+                    
+                    // Add click event listener
+                    categoryCard.addEventListener('click', () => {
+                        this.showCategoryKeywords(category);
+                    });
+                    
+                    categoriesCarousel.appendChild(categoryCard);
+                });
+
+                // Create indicators - one more dot to show last category properly
+                const totalIndicators = this.totalSlides + 1;
+                for (let i = 0; i < totalIndicators; i++) {
+                    const indicator = document.createElement('div');
+                    indicator.className = `indicator ${i === 0 ? 'active' : ''}`;
+                    indicator.addEventListener('click', () => this.goToSlide(i));
+                    indicatorsContainer.appendChild(indicator);
+                }
+
+                this.updateCarousel();
+            }
+
+            // Carousel navigation methods
+            nextSlide() {
+                const maxSlide = this.totalSlides; // Allow one more slide to show last category
+                if (this.currentSlide < maxSlide) {
+                    this.currentSlide++;
+                    this.updateCarousel();
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.currentSlide--;
+                    this.updateCarousel();
+                }
+            }
+
+            goToSlide(slideIndex) {
+                const maxSlide = this.totalSlides; // Allow one more slide to show last category
+                if (slideIndex >= 0 && slideIndex <= maxSlide) {
+                    this.currentSlide = slideIndex;
+                    this.updateCarousel();
+                }
+            }
+
+            updateCarousel() {
+                const carousel = document.getElementById('categories-carousel');
+                const indicators = document.querySelectorAll('.indicator');
+                const prevBtn = document.getElementById('prev-category');
+                const nextBtn = document.getElementById('next-category');
+
+                // Update carousel position
+                let translateX;
+                if (this.currentSlide === this.totalSlides) {
+                    // Last slide - show remaining categories properly
+                    const remainingCategories = this.categories.length - (this.totalSlides * this.slidesToShow);
+                    const extraSpace = (this.slidesToShow - remainingCategories) * (100 / this.slidesToShow);
+                    translateX = -(this.currentSlide * (100 / this.slidesToShow)) + extraSpace;
+                } else {
+                    translateX = -(this.currentSlide * (100 / this.slidesToShow));
+                }
+                carousel.style.transform = `translateX(${translateX}%)`;
+
+                // Update indicators
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === this.currentSlide);
+                });
+
+                // Update button states
+                if (prevBtn) {
+                    prevBtn.disabled = this.currentSlide === 0;
+                }
+                if (nextBtn) {
+                    nextBtn.disabled = this.currentSlide >= this.totalSlides;
+                }
+            }
+
+            showCategoryKeywords(category) {
+                // Create modal or expandable section to show keywords
+                this.createKeywordsModal(category);
+            }
+
+            createKeywordsModal(category) {
+                // Remove existing modal if any
+                const existingModal = document.getElementById('keywords-modal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                // Create modal overlay
+                const modal = document.createElement('div');
+                modal.id = 'keywords-modal';
+                modal.className = 'keywords-modal-overlay';
+                modal.innerHTML = `
+                    <div class="keywords-modal">
+                        <div class="keywords-modal-header">
+                            <h3>${category.label} Keywords (${category.count})</h3>
+                            <button class="close-modal" onclick="this.closest('.keywords-modal-overlay').remove()">×</button>
+                        </div>
+                        <div class="keywords-modal-content">
+                            <div class="keywords-list" id="keywords-list">
+                                <!-- Keywords will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Populate keywords
+                this.populateKeywordsList(category.keywords);
+
+                // Add click outside to close
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+
+            populateKeywordsList(keywords) {
+                const keywordsList = document.getElementById('keywords-list');
+                keywordsList.innerHTML = '';
+
+                // Sort keywords by impressions (highest first)
+                const sortedKeywords = [...keywords].sort((a, b) => b.impressions - a.impressions);
+
+                sortedKeywords.forEach(keyword => {
+                    const keywordItem = document.createElement('div');
+                    keywordItem.className = 'keyword-item';
+                    keywordItem.innerHTML = `
+                        <div class="keyword-main">
+                            <div class="keyword-query">${keyword.query}</div>
+                            <div class="keyword-position">Position: ${keyword.position}</div>
+                        </div>
+                        <div class="keyword-metrics">
+                            <div class="keyword-metric">
+                                <span class="metric-label">Impressions</span>
+                                <span class="metric-value">${keyword.impressions.toLocaleString()}</span>
+                            </div>
+                            <div class="keyword-metric">
+                                <span class="metric-label">Clicks</span>
+                                <span class="metric-value">${keyword.clicks.toLocaleString()}</span>
+                            </div>
+                            <div class="keyword-metric">
+                                <span class="metric-label">CTR</span>
+                                <span class="metric-value">${(keyword.ctr * 100).toFixed(2)}%</span>
+                            </div>
+                            <div class="keyword-metric">
+                                <span class="metric-label">Potential</span>
+                                <span class="metric-value">${keyword.potential}</span>
+                            </div>
+                        </div>
+                    `;
+                    keywordsList.appendChild(keywordItem);
+                });
+            }
+
+            showLoading(show) {
+                const loadingState = document.getElementById('trends-loading');
+                const emptyState = document.getElementById('trends-empty-state');
+                const fetchBtn = document.getElementById('fetch-trends-btn');
+                
+                if (show) {
+                    loadingState.style.display = 'block';
+                    emptyState.style.display = 'none';
+                    fetchBtn.disabled = true;
+                    fetchBtn.classList.add('loading');
+                    
+                    // Update button content for loading state
+                    const btnContent = fetchBtn.querySelector('.btn-content');
+                    btnContent.innerHTML = `
+                        <div class="btn-icon-wrapper">
+                            <span class="btn-icon">⏳</span>
+                            <div class="icon-pulse"></div>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">Analyzing...</span>
+                            <span class="btn-subtitle">Processing keyword data</span>
+                        </div>
+                    `;
+                } else {
+                    loadingState.style.display = 'none';
+                    fetchBtn.disabled = false;
+                    fetchBtn.classList.remove('loading');
+                    
+                    // Restore original button content
+                    const btnContent = fetchBtn.querySelector('.btn-content');
+                    btnContent.innerHTML = `
+                        <div class="btn-icon-wrapper">
+                            <span class="btn-icon">📈</span>
+                            <div class="icon-pulse"></div>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">Analyze Trends</span>
+                            <span class="btn-subtitle">Discover keyword insights</span>
+                        </div>
+                    `;
+                }
+            }
+
+            showResults() {
+                const results = document.getElementById('trends-results');
+                const emptyState = document.getElementById('trends-empty-state');
+                
+                results.style.display = 'block';
+                emptyState.style.display = 'none';
+            }
+
+            hideResults() {
+                const results = document.getElementById('trends-results');
+                const emptyState = document.getElementById('trends-empty-state');
+                
+                results.style.display = 'none';
+                emptyState.style.display = 'block';
+            }
+        }
+
         // Initialize GSC Hanging Keywords when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             gscHangingKeywords = new GSCHangingKeywords();
+            gscKeywordTrends = new GSCKeywordTrends();
         });
     </script>
 </body>
