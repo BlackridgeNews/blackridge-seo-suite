@@ -2655,6 +2655,32 @@
             background: var(--gray-50);
         }
 
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--pure-white);
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .error-state h3 {
+            color: var(--error);
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+        }
+
+        .error-state p {
+            color: var(--gray-600);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
         .qc-issue {
             padding: 16px 20px;
             border-bottom: 1px solid var(--gray-200);
@@ -5456,6 +5482,7 @@ data center
                         <span class="spinner hidden" id="qc-spinner"></span>
                         Analyze Content
                     </button>
+                    <button class="btn btn-secondary" onclick="testQCAnalysis()">Test QC</button>
                     <button class="btn btn-secondary" onclick="clearQCAnalysis()">Reset Analysis</button>
                 </div>
                 
@@ -7344,6 +7371,18 @@ data center
                 return;
             }
             
+            // Debug logging
+            console.log('QC Analysis Request:', {
+                contentLength: content.length,
+                title: title,
+                keywords: keywords,
+                url: url,
+                audience: audience,
+                readingLevel: readingLevel,
+                locale: locale,
+                apiUrl: config.apiBaseUrl + config.endpoints.qcAnalysis
+            });
+            
             // Show loading state
             spinner.classList.remove('hidden');
             btn.disabled = true;
@@ -7372,15 +7411,51 @@ data center
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.error || `HTTP error! status: ${response.status}`;
+                    throw new Error(errorMessage);
                 }
                 
                 const analysis = await response.json();
+                
+                // Check if the response has the expected structure
+                if (!analysis || typeof analysis !== 'object') {
+                    throw new Error('Invalid response format from server');
+                }
+                
                 displayQCResults(analysis);
                 showStatus('qc-status', 'Content analysis completed successfully!', 'success');
                 
             } catch (error) {
-                showStatus('qc-status', `Analysis failed: ${error.message}`, 'error');
+                console.error('QC Analysis Error:', error);
+                
+                // Show more specific error messages
+                let errorMessage = error.message;
+                if (error.message.includes('API key not configured')) {
+                    errorMessage = 'QC analysis is temporarily unavailable. Please contact administrator.';
+                } else if (error.message.includes('timeout')) {
+                    errorMessage = 'Analysis timed out. Please try with shorter content.';
+                } else if (error.message.includes('Invalid response format')) {
+                    errorMessage = 'Server returned invalid data. Please try again.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network error. Please check your connection and try again.';
+                }
+                
+                showStatus('qc-status', `Analysis failed: ${errorMessage}`, 'error');
+                
+                // Show a fallback message in the results panel
+                const resultsPanel = document.getElementById('qc-results-panel');
+                if (resultsPanel) {
+                    resultsPanel.style.display = 'block';
+                    resultsPanel.innerHTML = `
+                        <div class="error-state">
+                            <div class="error-icon">⚠️</div>
+                            <h3>Analysis Failed</h3>
+                            <p>${errorMessage}</p>
+                            <button class="btn btn-primary" onclick="analyzeContentQuality()">Try Again</button>
+                        </div>
+                    `;
+                }
             } finally {
                 spinner.classList.add('hidden');
                 btn.disabled = false;
@@ -7390,6 +7465,8 @@ data center
         function displayQCResults(analysis) {
             const resultsPanel = document.getElementById('qc-results-panel');
             resultsPanel.style.display = 'block';
+			// Persist latest analysis for export/print
+			window.latestQCAnalysis = analysis;
             
             // Update summary stats with animations
             updateStatsWithAnimation('overall-score', analysis.summary?.overall_score || 0);
@@ -7674,11 +7751,194 @@ data center
             }
         }
 
-        function exportQCResults() {
-            // Implementation for exporting QC results
-            showStatus('qc-status', 'Exporting QC results...', 'info');
-            // Add your export logic here
-        }
+		async function exportQCResults() {
+			const analysis = window.latestQCAnalysis;
+			if (!analysis) {
+				showStatus('qc-status', 'No analysis to export. Run Analyze first.', 'error');
+				return;
+			}
+
+			// Gather current context/meta from the UI
+			const title = (document.getElementById('qc-title')?.value || '').trim();
+			const url = (document.getElementById('qc-url')?.value || '').trim();
+			const audience = (document.getElementById('qc-audience')?.value || '').trim();
+			const readingLevel = (document.getElementById('qc-reading-level')?.value || '').trim();
+			const locale = (document.getElementById('qc-locale')?.value || '').trim();
+			const exportedAt = new Date();
+			const dateSlug = exportedAt.toISOString().replace(/[:.]/g, '-');
+
+			// Lazy-load jsPDF and autoTable if not present
+			function loadScript(src) {
+				return new Promise((resolve, reject) => {
+					const s = document.createElement('script');
+					s.src = src;
+					s.onload = resolve;
+					s.onerror = reject;
+					document.head.appendChild(s);
+				});
+			}
+
+			async function ensurePdfLibs() {
+				const hasJsPDF = !!(window.jspdf && window.jspdf.jsPDF);
+				if (!hasJsPDF) {
+					await loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+				}
+				const hasAutoTable = !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable);
+				if (!hasAutoTable) {
+					await loadScript('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js');
+				}
+			}
+
+			try {
+				showStatus('qc-status', 'Generating PDF report...', 'info');
+				await ensurePdfLibs();
+				const { jsPDF } = window.jspdf;
+				const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+				// Theme vars
+				const primary = '#0ea5a5';
+				const gray = '#475569';
+				const text = '#0f172a';
+				const marginX = 48;
+				let y = 56;
+
+				// Header
+				doc.setFont('helvetica', 'bold');
+				doc.setFontSize(18);
+				doc.setTextColor(primary);
+				doc.text('AI Search QC Report', marginX, y);
+				y += 8;
+				doc.setDrawColor(primary);
+				doc.setLineWidth(1);
+				doc.line(marginX, y, 595 - marginX, y);
+				y += 20;
+
+				// Meta
+				doc.setFont('helvetica', 'normal');
+				doc.setFontSize(10);
+				doc.setTextColor(gray);
+				doc.text(`Title: ${title || '—'}`, marginX, y); y += 14;
+				doc.text(`URL: ${url || '—'}`, marginX, y); y += 14;
+				doc.text(`Audience: ${audience || '—'}`, marginX, y); y += 14;
+				doc.text(`Reading level: ${readingLevel || '—'}`, marginX, y); y += 14;
+				doc.text(`Locale: ${locale || '—'}`, marginX, y); y += 14;
+				doc.text(`Exported: ${exportedAt.toLocaleString()}`, marginX, y); y += 24;
+
+				// Summary
+				doc.setFont('helvetica', 'bold');
+				doc.setFontSize(12);
+				doc.setTextColor(text);
+				doc.text('Summary', marginX, y); y += 14;
+				doc.setFont('helvetica', 'normal');
+				doc.setFontSize(10);
+				doc.text(`Overall score: ${analysis.summary?.overall_score ?? 0}`, marginX, y); y += 12;
+				doc.text(`Issues: ${analysis.summary?.issue_count ?? 0} (critical: ${analysis.summary?.by_severity?.critical ?? 0}, major: ${analysis.summary?.by_severity?.major ?? 0}, minor: ${analysis.summary?.by_severity?.minor ?? 0})`, marginX, y); y += 12;
+				doc.text(`Readability hint: ${analysis.summary?.readability_hint || '—'}`, marginX, y); y += 18;
+
+				// Issues table
+				const issues = Array.isArray(analysis.issues) ? analysis.issues : [];
+				if (issues.length > 0) {
+					const head = [['ID','Category','Severity','Confidence','Snippet','Suggestion']];
+					const body = issues.map(i => [
+						i.id || '—',
+						i.category || '—',
+						i.severity || '—',
+						(typeof i.confidence === 'number' ? `${Math.round(i.confidence * 100)}%` : '—'),
+						i.snippet || '—',
+						i.replacement || i.suggestion || '—'
+					]);
+					doc.autoTable({
+						startY: y,
+						head,
+						body,
+						styles: { fontSize: 8, cellPadding: 4, overflow: 'linebreak' },
+						headStyles: { fillColor: [14,165,165], textColor: 255 },
+						columnStyles: { 4: { cellWidth: 180 }, 5: { cellWidth: 180 } },
+						margin: { left: marginX, right: marginX }
+					});
+					y = doc.lastAutoTable.finalY + 16;
+				} else {
+					doc.setFont('helvetica', 'italic');
+					doc.text('No issues found.', marginX, y); y += 16;
+				}
+
+				// Page suggestions
+				const suggestions = Array.isArray(analysis.page_suggestions) ? analysis.page_suggestions : [];
+				if (suggestions.length > 0) {
+					doc.setFont('helvetica', 'bold');
+					doc.setFontSize(12);
+					doc.text('Page Suggestions', marginX, y); y += 12;
+					doc.setFont('helvetica', 'normal');
+					doc.setFontSize(10);
+					suggestions.forEach(s => {
+						doc.text(`• ${s.title || 'Suggestion'}`, marginX, y); y += 12;
+						if (s.rationale) { doc.text(`Rationale: ${s.rationale}`, marginX + 14, y, { maxWidth: 595 - marginX * 2 - 14 }); y += 12; }
+						if (s.proposed_rewrite) { doc.text(`Proposed: ${s.proposed_rewrite}`, marginX + 14, y, { maxWidth: 595 - marginX * 2 - 14 }); y += 14; }
+					});
+					y += 6;
+				}
+
+				// Style conformance
+				if (analysis.style_conformance) {
+					doc.setFont('helvetica', 'bold');
+					doc.setFontSize(12);
+					doc.text('Style Conformance', marginX, y); y += 12;
+					doc.setFont('helvetica', 'normal');
+					doc.setFontSize(10);
+					const style = analysis.style_conformance;
+					doc.text(`Locale: ${style.locale || locale || '—'}`, marginX, y); y += 12;
+					if (Array.isArray(style.banned_terms_found) && style.banned_terms_found.length) {
+						doc.text(`Banned terms: ${style.banned_terms_found.join(', ')}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+					}
+					if (Array.isArray(style.term_normalizations) && style.term_normalizations.length) {
+						const norms = style.term_normalizations.map(n => `${n.from} → ${n.to}`).join(', ');
+						doc.text(`Normalizations: ${norms}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+					}
+					y += 4;
+				}
+
+				// SEO checks
+				if (analysis.seo_checks) {
+					doc.setFont('helvetica', 'bold');
+					doc.setFontSize(12);
+					doc.text('SEO Checks', marginX, y); y += 12;
+					doc.setFont('helvetica', 'normal');
+					doc.setFontSize(10);
+					const seo = analysis.seo_checks;
+					doc.text(`Passive voice: ${seo.passive_voice_pct ?? 0}%`, marginX, y); y += 12;
+					doc.text(`Avg sentence length: ${seo.avg_sentence_length ?? 0} words`, marginX, y); y += 12;
+					if (Array.isArray(seo.duplicate_phrases) && seo.duplicate_phrases.length) {
+						doc.text(`Duplicate phrases: ${seo.duplicate_phrases.join(', ')}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+					}
+					doc.text(`Title case OK: ${seo.title_case_ok ? 'Yes' : 'No'}`, marginX, y); y += 12;
+					doc.text(`Heading hierarchy OK: ${seo.heading_hierarchy_ok ? 'Yes' : 'No'}`, marginX, y); y += 12;
+				}
+
+				// Accessibility
+				if (analysis.accessibility) {
+					doc.setFont('helvetica', 'bold');
+					doc.setFontSize(12);
+					doc.text('Accessibility', marginX, y); y += 12;
+					doc.setFont('helvetica', 'normal');
+					doc.setFontSize(10);
+					const a11y = analysis.accessibility;
+					if (a11y.plain_language_notes) { doc.text(`Plain language: ${a11y.plain_language_notes}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12; }
+					if (Array.isArray(a11y.problematic_phrases) && a11y.problematic_phrases.length) {
+						doc.text(`Problematic phrases: ${a11y.problematic_phrases.join(', ')}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+					}
+				}
+
+				// Footer and save
+				doc.setFont('helvetica', 'italic');
+				doc.setFontSize(8);
+				doc.setTextColor(gray);
+				doc.text('Generated by Blackridge SEO Suite', marginX, 820);
+				doc.save(`qc-report-${dateSlug}.pdf`);
+				showStatus('qc-status', 'QC report exported as PDF.', 'success');
+			} catch (err) {
+				showStatus('qc-status', `Failed to export PDF: ${err.message}`, 'error');
+			}
+		}
 
         function printQCResults() {
             // Implementation for printing QC results
@@ -7857,17 +8117,29 @@ data center
         }
 
         // Internal Linking Functions
-        async function loadAnchorData() {
-            const range = document.getElementById('sheets-range').value;
-            
-            showStatus('linking-status', 'Loading anchor data from Google Sheets...', 'info');
+		async function loadAnchorData() {
+			const rangeInput = document.getElementById('sheets-range');
+			const range = (rangeInput && rangeInput.value && rangeInput.value.trim()) ? rangeInput.value.trim() : 'Sheet1!C:G';
+			
+			if (!rangeInput) {
+				showStatus('linking-status', 'No Sheets range input found. Using default range Sheet1!C:G.', 'info');
+			} else if (!rangeInput.value || !rangeInput.value.trim()) {
+				showStatus('linking-status', 'No range provided. Using default range Sheet1!C:G.', 'info');
+			}
+			
+			showStatus('linking-status', 'Loading anchor data from Google Sheets...', 'info');
             
             try {
-                const response = await fetch(`${config.apiBaseUrl}${config.endpoints.sheets}?range=${range}`);
+				const response = await fetch(`${config.apiBaseUrl}${config.endpoints.sheets}?range=${encodeURIComponent(range)}`);
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+				if (!response.ok) {
+					let details = '';
+					try {
+						const text = await response.text();
+						details = text;
+					} catch (_) {}
+					throw new Error(`HTTP ${response.status}${details ? `: ${details}` : ''}`);
+				}
                 
                 const data = await response.json();
                 const anchorTextData = parseAnchorData(data.values || []);
