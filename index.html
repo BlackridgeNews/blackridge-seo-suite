@@ -7484,7 +7484,53 @@ data center
             // Update issue summary
             updateIssueSummary(analysis.issues || []);
             
-            // Display issues with modern cards
+			// Inject intent assessment and SERP research sections
+			try {
+				const sectionsContainer = document.querySelector('#qc-results-panel .qc-analysis-sections');
+				if (sectionsContainer) {
+					let intentHtml = '';
+					if (analysis.intent_assessment) {
+						const fulfilled = analysis.intent_assessment.fulfilled || '—';
+						const rationale = analysis.intent_assessment.rationale || '';
+						intentHtml = `
+							<div class="analysis-section" id="intent-assessment-section">
+								<div class="section-header" onclick="toggleSection('intent-assessment')">
+									<h3>🎯 Intent Assessment</h3>
+									<span class="collapse-icon">▼</span>
+								</div>
+								<div class="section-content" id="intent-assessment">
+									<div class="placeholder-content"><strong>Status:</strong> ${fulfilled} ${rationale ? `- ${rationale}` : ''}</div>
+								</div>
+							</div>`;
+					}
+					let serpHtml = '';
+					if (analysis.serp_insights) {
+						const si = analysis.serp_insights;
+						serpHtml = `
+							<div class="analysis-section" id="serp-research-section">
+								<div class="section-header" onclick="toggleSection('serp-research')">
+									<h3>🔎 SERP Insights</h3>
+									<span class="collapse-icon">▼</span>
+								</div>
+								<div class="section-content" id="serp-research">
+									<div class="placeholder-content"><strong>Title patterns:</strong> ${si.meta_title_observations || ''}</div>
+									<div class="placeholder-content"><strong>Description patterns:</strong> ${si.meta_description_observations || ''}</div>
+									<div class="placeholder-content"><strong>Suggested Meta Title:</strong> ${si.suggested_meta_title || ''}</div>
+									<div class="placeholder-content"><strong>Suggested Meta Description:</strong> ${si.suggested_meta_description || ''}</div>
+								</div>
+							</div>`;
+					}
+					// Prepend or update sections
+					const existingIntent = document.getElementById('intent-assessment-section');
+					if (existingIntent) existingIntent.remove();
+					const existingSerp = document.getElementById('serp-research-section');
+					if (existingSerp) existingSerp.remove();
+					sectionsContainer.insertAdjacentHTML('afterbegin', serpHtml);
+					sectionsContainer.insertAdjacentHTML('afterbegin', intentHtml);
+				}
+			} catch (e) { console.warn('Render intent/SERP failed', e); }
+
+			// Display issues with modern cards
             displayIssuesModern(analysis.issues || []);
             
             // Display page suggestions
@@ -7795,12 +7841,55 @@ data center
 				const { jsPDF } = window.jspdf;
 				const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-				// Theme vars
+				// Typography and layout
 				const primary = '#0ea5a5';
 				const gray = '#475569';
 				const text = '#0f172a';
 				const marginX = 48;
-				let y = 56;
+				const marginTop = 56;
+				const marginBottom = 56;
+				const pageWidth = doc.internal.pageSize.getWidth();
+				const pageHeight = doc.internal.pageSize.getHeight();
+				const contentWidth = pageWidth - marginX * 2;
+				let y = marginTop;
+
+				// Helpers for pagination and text blocks
+				function addPageIfNeeded(extraHeight) {
+					if (y + extraHeight > pageHeight - marginBottom) {
+						doc.addPage();
+						y = marginTop;
+					}
+				}
+
+				function writeHeading(textStr, level = 1) {
+					const sizes = { 1: 16, 2: 12, 3: 11 };
+					doc.setFont('helvetica', 'bold');
+					doc.setFontSize(sizes[level] || 12);
+					doc.setTextColor(text);
+					addPageIfNeeded(24);
+					doc.text(textStr, marginX, y);
+					y += 14;
+				}
+
+				function writeRule() {
+					doc.setDrawColor(primary);
+					doc.setLineWidth(1);
+					addPageIfNeeded(10);
+					doc.line(marginX, y, pageWidth - marginX, y);
+					y += 14;
+				}
+
+				function writeParagraph(textStr, opts = {}) {
+					doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+					doc.setFontSize(opts.size || 10);
+					doc.setTextColor(opts.color || gray);
+					const lines = doc.splitTextToSize(textStr || '', contentWidth);
+					lines.forEach(line => {
+						addPageIfNeeded(14);
+						doc.text(line, marginX, y);
+						y += 14;
+					});
+				}
 
 				// Header
 				doc.setFont('helvetica', 'bold');
@@ -7808,32 +7897,41 @@ data center
 				doc.setTextColor(primary);
 				doc.text('AI Search QC Report', marginX, y);
 				y += 8;
-				doc.setDrawColor(primary);
-				doc.setLineWidth(1);
-				doc.line(marginX, y, 595 - marginX, y);
-				y += 20;
+				writeRule();
 
 				// Meta
-				doc.setFont('helvetica', 'normal');
-				doc.setFontSize(10);
-				doc.setTextColor(gray);
-				doc.text(`Title: ${title || '—'}`, marginX, y); y += 14;
-				doc.text(`URL: ${url || '—'}`, marginX, y); y += 14;
-				doc.text(`Audience: ${audience || '—'}`, marginX, y); y += 14;
-				doc.text(`Reading level: ${readingLevel || '—'}`, marginX, y); y += 14;
-				doc.text(`Locale: ${locale || '—'}`, marginX, y); y += 14;
-				doc.text(`Exported: ${exportedAt.toLocaleString()}`, marginX, y); y += 24;
+				writeParagraph(`Title: ${title || '—'}`, { size: 10 });
+				writeParagraph(`URL: ${url || '—'}`, { size: 10 });
+				writeParagraph(`Audience: ${audience || '—'}`, { size: 10 });
+				writeParagraph(`Reading level: ${readingLevel || '—'}`, { size: 10 });
+				writeParagraph(`Locale: ${locale || '—'}`, { size: 10 });
+				writeParagraph(`Exported: ${exportedAt.toLocaleString()}`, { size: 10 });
+				y += 10;
 
 				// Summary
-				doc.setFont('helvetica', 'bold');
-				doc.setFontSize(12);
-				doc.setTextColor(text);
-				doc.text('Summary', marginX, y); y += 14;
-				doc.setFont('helvetica', 'normal');
-				doc.setFontSize(10);
-				doc.text(`Overall score: ${analysis.summary?.overall_score ?? 0}`, marginX, y); y += 12;
-				doc.text(`Issues: ${analysis.summary?.issue_count ?? 0} (critical: ${analysis.summary?.by_severity?.critical ?? 0}, major: ${analysis.summary?.by_severity?.major ?? 0}, minor: ${analysis.summary?.by_severity?.minor ?? 0})`, marginX, y); y += 12;
-				doc.text(`Readability hint: ${analysis.summary?.readability_hint || '—'}`, marginX, y); y += 18;
+				writeHeading('Summary', 2);
+				writeParagraph(`Overall score: ${analysis.summary?.overall_score ?? 0}`, { size: 10, color: text });
+				writeParagraph(`Issues: ${analysis.summary?.issue_count ?? 0} (critical: ${analysis.summary?.by_severity?.critical ?? 0}, major: ${analysis.summary?.by_severity?.major ?? 0}, minor: ${analysis.summary?.by_severity?.minor ?? 0})`, { size: 10, color: text });
+				writeParagraph(`Readability hint: ${analysis.summary?.readability_hint || '—'}`, { size: 10, color: text });
+				y += 6;
+
+				// Intent Assessment
+				if (analysis.intent_assessment) {
+					writeHeading('Intent Assessment', 2);
+					const ia = analysis.intent_assessment;
+					writeParagraph(`Status: ${ia.fulfilled || '—'}`, { size: 10, color: text });
+					if (ia.rationale) { writeParagraph(`Rationale: ${ia.rationale}`, { size: 10 }); }
+				}
+
+				// SERP Insights
+				if (analysis.serp_insights) {
+					writeHeading('SERP Insights', 2);
+					const si = analysis.serp_insights;
+					if (si.meta_title_observations) { writeParagraph(`Title patterns: ${si.meta_title_observations}`, { size: 10 }); }
+					if (si.meta_description_observations) { writeParagraph(`Description patterns: ${si.meta_description_observations}`, { size: 10 }); }
+					if (si.suggested_meta_title) { writeParagraph(`Suggested Meta Title: ${si.suggested_meta_title}`, { size: 10, color: text, bold: true }); }
+					if (si.suggested_meta_description) { writeParagraph(`Suggested Meta Description: ${si.suggested_meta_description}`, { size: 10, color: text }); }
+				}
 
 				// Issues table
 				const issues = Array.isArray(analysis.issues) ? analysis.issues : [];
@@ -7853,48 +7951,42 @@ data center
 						body,
 						styles: { fontSize: 8, cellPadding: 4, overflow: 'linebreak' },
 						headStyles: { fillColor: [14,165,165], textColor: 255 },
-						columnStyles: { 4: { cellWidth: 180 }, 5: { cellWidth: 180 } },
-						margin: { left: marginX, right: marginX }
+						columnStyles: { 4: { cellWidth: 200 }, 5: { cellWidth: 200 } },
+						margin: { left: marginX, right: marginX },
+						bodyStyles: { valign: 'top' },
+						didDrawPage: (data) => {
+							// Reset y to after the table for subsequent sections
+							y = data.cursor ? data.cursor.y + 16 : doc.lastAutoTable.finalY + 16;
+						}
 					});
-					y = doc.lastAutoTable.finalY + 16;
 				} else {
 					doc.setFont('helvetica', 'italic');
-					doc.text('No issues found.', marginX, y); y += 16;
+					writeParagraph('No issues found.', { size: 10, color: text });
 				}
 
 				// Page suggestions
 				const suggestions = Array.isArray(analysis.page_suggestions) ? analysis.page_suggestions : [];
 				if (suggestions.length > 0) {
-					doc.setFont('helvetica', 'bold');
-					doc.setFontSize(12);
-					doc.text('Page Suggestions', marginX, y); y += 12;
-					doc.setFont('helvetica', 'normal');
-					doc.setFontSize(10);
+					writeHeading('Page Suggestions', 2);
 					suggestions.forEach(s => {
-						doc.text(`• ${s.title || 'Suggestion'}`, marginX, y); y += 12;
-						if (s.rationale) { doc.text(`Rationale: ${s.rationale}`, marginX + 14, y, { maxWidth: 595 - marginX * 2 - 14 }); y += 12; }
-						if (s.proposed_rewrite) { doc.text(`Proposed: ${s.proposed_rewrite}`, marginX + 14, y, { maxWidth: 595 - marginX * 2 - 14 }); y += 14; }
+						writeParagraph(`• ${s.title || 'Suggestion'}`, { size: 10, color: text, bold: true });
+						if (s.rationale) { writeParagraph(`Rationale: ${s.rationale}`, { size: 10 }); }
+						if (s.proposed_rewrite) { writeParagraph(`Proposed: ${s.proposed_rewrite}`, { size: 10 }); }
 					});
-					y += 6;
 				}
 
 				// Style conformance
 				if (analysis.style_conformance) {
-					doc.setFont('helvetica', 'bold');
-					doc.setFontSize(12);
-					doc.text('Style Conformance', marginX, y); y += 12;
-					doc.setFont('helvetica', 'normal');
-					doc.setFontSize(10);
+					writeHeading('Style Conformance', 2);
 					const style = analysis.style_conformance;
-					doc.text(`Locale: ${style.locale || locale || '—'}`, marginX, y); y += 12;
+					writeParagraph(`Locale: ${style.locale || locale || '—'}`, { size: 10 });
 					if (Array.isArray(style.banned_terms_found) && style.banned_terms_found.length) {
-						doc.text(`Banned terms: ${style.banned_terms_found.join(', ')}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+						writeParagraph(`Banned terms: ${style.banned_terms_found.join(', ')}`, { size: 10 });
 					}
 					if (Array.isArray(style.term_normalizations) && style.term_normalizations.length) {
 						const norms = style.term_normalizations.map(n => `${n.from} → ${n.to}`).join(', ');
-						doc.text(`Normalizations: ${norms}`, marginX, y, { maxWidth: 595 - marginX * 2 }); y += 12;
+						writeParagraph(`Normalizations: ${norms}`, { size: 10 });
 					}
-					y += 4;
 				}
 
 				// SEO checks
