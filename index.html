@@ -6159,7 +6159,12 @@ data center
 
             init() {
                 this.applyTheme(this.currentTheme);
-                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                // Only add event listener if themeToggle element exists
+                if (this.themeToggle) {
+                    this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                } else {
+                    console.warn('ThemeManager: themeToggle element not found, theme toggle functionality disabled');
+                }
             }
 
             toggleTheme() {
@@ -7509,6 +7514,12 @@ data center
                     errorMessage = 'Server returned invalid data. Please try again.';
                 } else if (error.message.includes('Failed to fetch')) {
                     errorMessage = 'Network error. Please check your connection and try again.';
+                } else if (error.message.includes('credits/quota exhausted') || error.message.includes('insufficient credits')) {
+                    errorMessage = '⚠️ Claude API credits exhausted. Please add credits to your Anthropic account and try again.';
+                } else if (error.message.includes('rate limit')) {
+                    errorMessage = '⏱️ Rate limit exceeded. Please wait a few moments and try again.';
+                } else if (error.message.includes('529') || error.message.includes('service unavailable')) {
+                    errorMessage = '⚠️ Service temporarily unavailable. This may indicate: credits exhausted, rate limiting, or service issues. Please check your Anthropic account or try again later.';
                 } else if (error.message.includes('Claude API error')) {
                     errorMessage = 'AI analysis service error. Please try again or contact support.';
                 }
