@@ -7354,6 +7354,9 @@ data center
 
         // AI QC Functions
         async function analyzeContentQuality() {
+            const requestId = `QC-FRONTEND-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            console.log(`[${requestId}] ===== QC ANALYSIS START (FRONTEND) =====`);
+            
             const contentEditor = document.getElementById('qc-content-editor');
             // Use innerHTML to preserve table structure and formatting
             const content = contentEditor.innerHTML || contentEditor.textContent || '';
@@ -7366,13 +7369,41 @@ data center
             const spinner = document.getElementById('qc-spinner');
             const btn = document.getElementById('analyze-btn');
             
+            console.log(`[${requestId}] Input validation:`, {
+                hasContent: !!content.trim(),
+                contentLength: content.length,
+                hasTitle: !!title.trim(),
+                title: title,
+                keywords: keywords || '(none)',
+                url: url || '(none)',
+                audience: audience,
+                readingLevel: readingLevel,
+                locale: locale
+            });
+            
             if (!content.trim() || !title.trim()) {
+                console.log(`[${requestId}] ERROR: Validation failed - missing required fields`);
                 showStatus('qc-status', 'Please fill in content and title fields', 'error');
                 return;
             }
             
-            // Debug logging
-            console.log('QC Analysis Request:', {
+            // Comprehensive logging
+            const requestPayload = {
+                content: content,
+                title: title,
+                keywords: keywords,
+                url: url,
+                audience: audience,
+                reading_level: readingLevel,
+                locale: locale,
+                brand_voice: 'professional, concise, friendly',
+                style_guide_highlights: [],
+                banned_terms: [],
+                preferred_terms: {},
+                goals: ['clarity', 'consistency', 'SEO']
+            };
+            
+            console.log(`[${requestId}] QC Analysis Request Details:`, {
                 contentLength: content.length,
                 title: title,
                 keywords: keywords,
@@ -7380,7 +7411,8 @@ data center
                 audience: audience,
                 readingLevel: readingLevel,
                 locale: locale,
-                apiUrl: config.apiBaseUrl + config.endpoints.qcAnalysis
+                apiUrl: config.apiBaseUrl + config.endpoints.qcAnalysis,
+                payloadSize: JSON.stringify(requestPayload).length
             });
             
             // Show loading state
@@ -7388,46 +7420,84 @@ data center
             btn.disabled = true;
             showStatus('qc-status', 'Analyzing content with AI...', 'info');
             
+            const requestStartTime = Date.now();
+            
             try {
+                console.log(`[${requestId}] Sending fetch request to: ${config.apiBaseUrl + config.endpoints.qcAnalysis}`);
+                
                 const response = await fetch(config.apiBaseUrl + config.endpoints.qcAnalysis, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        content: content,
-                        title: title,
-                        keywords: keywords,
-                        url: url,
-                        audience: audience,
-                        reading_level: readingLevel,
-                        locale: locale,
-                        brand_voice: 'professional, concise, friendly',
-                        style_guide_highlights: [],
-                        banned_terms: [],
-                        preferred_terms: {},
-                        goals: ['clarity', 'consistency', 'SEO']
-                    })
+                    body: JSON.stringify(requestPayload)
                 });
                 
+                const requestDuration = Date.now() - requestStartTime;
+                console.log(`[${requestId}] Response received in ${requestDuration}ms`);
+                console.log(`[${requestId}] Response status: ${response.status} ${response.statusText}`);
+                console.log(`[${requestId}] Response headers:`, Object.fromEntries(response.headers.entries()));
+                
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
+                    let errorData = {};
+                    try {
+                        const errorText = await response.text();
+                        console.log(`[${requestId}] ERROR: Response error body:`, errorText);
+                        errorData = JSON.parse(errorText);
+                    } catch (parseError) {
+                        console.log(`[${requestId}] ERROR: Could not parse error response:`, parseError.message);
+                    }
                     const errorMessage = errorData.error || `HTTP error! status: ${response.status}`;
+                    console.log(`[${requestId}] ERROR: Request failed with status ${response.status}:`, errorMessage);
                     throw new Error(errorMessage);
                 }
                 
+                console.log(`[${requestId}] Parsing response JSON...`);
                 const analysis = await response.json();
+                console.log(`[${requestId}] Response parsed successfully`);
+                console.log(`[${requestId}] Analysis structure:`, {
+                    hasSummary: !!analysis.summary,
+                    issueCount: analysis.summary?.issue_count || 0,
+                    overallScore: analysis.summary?.overall_score || 0,
+                    readabilityHint: analysis.summary?.readability_hint || 'N/A',
+                    hasIssues: (analysis.issues || []).length > 0,
+                    issuesCount: (analysis.issues || []).length,
+                    hasPageSuggestions: (analysis.page_suggestions || []).length > 0,
+                    hasIntentAssessment: !!analysis.intent_assessment,
+                    hasSerpInsights: !!analysis.serp_insights
+                });
+                
+                // Check if we received a fallback analysis
+                if (analysis.summary?.readability_hint === "Analysis unavailable - please check manually") {
+                    console.warn(`[${requestId}] ⚠️ WARNING: Received fallback analysis! This indicates the QC process failed on the server.`);
+                    console.warn(`[${requestId}] ⚠️ WARNING: Full analysis object:`, JSON.stringify(analysis, null, 2));
+                    showStatus('qc-status', 'Warning: Analysis may be incomplete. Check console for details.', 'warning');
+                }
                 
                 // Check if the response has the expected structure
                 if (!analysis || typeof analysis !== 'object') {
+                    console.error(`[${requestId}] ERROR: Invalid response format - not an object:`, typeof analysis);
                     throw new Error('Invalid response format from server');
                 }
                 
+                if (!analysis.summary) {
+                    console.error(`[${requestId}] ERROR: Invalid response format - missing summary field`);
+                    throw new Error('Invalid response format from server - missing summary');
+                }
+                
+                console.log(`[${requestId}] Displaying QC results...`);
                 displayQCResults(analysis);
+                console.log(`[${requestId}] QC results displayed successfully`);
                 showStatus('qc-status', 'Content analysis completed successfully!', 'success');
+                console.log(`[${requestId}] ===== QC ANALYSIS END (SUCCESS) =====`);
                 
             } catch (error) {
-                console.error('QC Analysis Error:', error);
+                const errorDuration = Date.now() - requestStartTime;
+                console.error(`[${requestId}] ===== QC ANALYSIS ERROR =====`);
+                console.error(`[${requestId}] Error after ${errorDuration}ms:`, error);
+                console.error(`[${requestId}] Error name:`, error.name);
+                console.error(`[${requestId}] Error message:`, error.message);
+                console.error(`[${requestId}] Error stack:`, error.stack);
                 
                 // Show more specific error messages
                 let errorMessage = error.message;
@@ -7439,8 +7509,11 @@ data center
                     errorMessage = 'Server returned invalid data. Please try again.';
                 } else if (error.message.includes('Failed to fetch')) {
                     errorMessage = 'Network error. Please check your connection and try again.';
+                } else if (error.message.includes('Claude API error')) {
+                    errorMessage = 'AI analysis service error. Please try again or contact support.';
                 }
                 
+                console.error(`[${requestId}] Displaying error to user:`, errorMessage);
                 showStatus('qc-status', `Analysis failed: ${errorMessage}`, 'error');
                 
                 // Show a fallback message in the results panel
@@ -7452,10 +7525,14 @@ data center
                             <div class="error-icon">⚠️</div>
                             <h3>Analysis Failed</h3>
                             <p>${errorMessage}</p>
+                            <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                                Check browser console (F12) for detailed error logs. Request ID: ${requestId}
+                            </p>
                             <button class="btn btn-primary" onclick="analyzeContentQuality()">Try Again</button>
                         </div>
                     `;
                 }
+                console.error(`[${requestId}] ===== QC ANALYSIS END (ERROR) =====`);
             } finally {
                 spinner.classList.add('hidden');
                 btn.disabled = false;
@@ -7463,6 +7540,20 @@ data center
         }
 
         function displayQCResults(analysis) {
+            // Detect fallback analysis
+            const isFallback = analysis.summary?.readability_hint === "Analysis unavailable - please check manually";
+            if (isFallback) {
+                console.error("🚨 CRITICAL: Fallback analysis detected in displayQCResults!");
+                console.error("🚨 This means the QC analysis failed and should not be used.");
+                console.error("🚨 Fallback analysis details:", {
+                    issueCount: analysis.summary?.issue_count,
+                    overallScore: analysis.summary?.overall_score,
+                    hasIssues: (analysis.issues || []).length > 0,
+                    hasPageSuggestions: (analysis.page_suggestions || []).length > 0,
+                    fullAnalysis: analysis
+                });
+            }
+            
             const resultsPanel = document.getElementById('qc-results-panel');
             resultsPanel.style.display = 'block';
 			// Persist latest analysis for export/print
